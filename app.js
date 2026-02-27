@@ -123,6 +123,11 @@ const CHART_LAYOUT_BASE_WIDTH = 1160;
 const CHART_LAYOUT_ASPECT_RATIO = 0.78;
 const CHART_LAYOUT_MIN_HEIGHT = 420;
 const CHART_LAYOUT_MAX_HEIGHT = 1080;
+const RESPONSIVE_BREAKPOINTS = Object.freeze({
+  compact: 520,
+  medium: 760,
+  large: 1120,
+});
 const OVERLAY_LEFT_RATIO = 0.12;
 const OVERLAY_TOP_RATIO = 0.05;
 const OVERLAY_SCALE_MIN = 0.72;
@@ -133,6 +138,86 @@ const CHART_GRID_LAYOUT = Object.freeze({
   right: 90,
   top: 44,
   bottom: 112,
+});
+const RESPONSIVE_GRID_LAYOUTS = Object.freeze({
+  compact: Object.freeze({
+    left: 52,
+    right: 34,
+    top: 36,
+    bottom: 92,
+  }),
+  medium: Object.freeze({
+    left: 60,
+    right: 42,
+    top: 40,
+    bottom: 100,
+  }),
+  large: Object.freeze({
+    left: 66,
+    right: 62,
+    top: 42,
+    bottom: 106,
+  }),
+});
+const RESPONSIVE_CHART_LAYOUTS = Object.freeze({
+  compact: Object.freeze({
+    aspectRatio: 0.88,
+    minHeight: 330,
+    maxHeight: 560,
+    overlayScaleMin: 0.44,
+    overlayScaleMax: 0.8,
+    overlayLeftRatio: 0.185,
+    overlayTopRatio: 0.045,
+  }),
+  medium: Object.freeze({
+    aspectRatio: 0.84,
+    minHeight: 360,
+    maxHeight: 660,
+    overlayScaleMin: 0.46,
+    overlayScaleMax: 0.9,
+    overlayLeftRatio: 0.16,
+    overlayTopRatio: 0.046,
+  }),
+  large: Object.freeze({
+    aspectRatio: 0.74,
+    minHeight: 420,
+    maxHeight: 920,
+    overlayScaleMin: 0.62,
+    overlayScaleMax: 1.08,
+    overlayLeftRatio: 0.14,
+    overlayTopRatio: 0.05,
+  }),
+});
+const RESPONSIVE_XAXIS_PRESETS = Object.freeze({
+  compact: Object.freeze({
+    maxLabels: 5,
+    fontSize: 10.1,
+    margin: 12,
+    minGapPx: 72,
+  }),
+  medium: Object.freeze({
+    maxLabels: 7,
+    fontSize: 10.8,
+    margin: 13,
+    minGapPx: 86,
+  }),
+  large: Object.freeze({
+    maxLabels: 10,
+    fontSize: 11.8,
+    margin: 14,
+    minGapPx: 104,
+  }),
+  default: Object.freeze({
+    maxLabels: 14,
+    fontSize: 11.8,
+    margin: 14,
+    minGapPx: 104,
+  }),
+});
+const RESPONSIVE_OVERLAY_SAFE_GAPS = Object.freeze({
+  compact: 36,
+  medium: 30,
+  default: 18,
 });
 const CHART_THEME_STYLES = Object.freeze({
   [THEME_MODE_LIGHT]: Object.freeze({
@@ -252,6 +337,19 @@ function escapeHtml(value) {
     if (char === '"') return "&quot;";
     return "&#39;";
   });
+}
+
+function populateSelectOptions(selectEl, options) {
+  if (!selectEl) return;
+  selectEl.innerHTML = "";
+  const fragment = document.createDocumentFragment();
+  for (const option of options) {
+    const optionEl = document.createElement("option");
+    optionEl.value = String(option.value ?? "");
+    optionEl.textContent = String(option.label ?? "");
+    fragment.appendChild(optionEl);
+  }
+  selectEl.appendChild(fragment);
 }
 
 function getOverlayMonthTextSegments(month) {
@@ -415,9 +513,13 @@ function findSourceByKey(sourceKey) {
 
 function populateSourceSelector(availableSources) {
   if (!dataSourceEl) return;
-  dataSourceEl.innerHTML = availableSources
-    .map((source) => `<option value="${source.key}">${source.label}</option>`)
-    .join("");
+  populateSelectOptions(
+    dataSourceEl,
+    availableSources.map((source) => ({
+      value: source.key,
+      label: source.label,
+    })),
+  );
   dataSourceEl.disabled = availableSources.length <= 1;
 }
 
@@ -523,14 +625,13 @@ function refreshCompareSourceControl({ keepSelection = true } = {}) {
   const alternatives = getAlternateSourcesForCompare();
   const eligibility = getCompareEligibility();
 
-  const options = ['<option value="none">不对比</option>']
-    .concat(
-      alternatives.map(
-        (source) => `<option value="${source.key}">${source.label}</option>`,
-      ),
-    )
-    .join("");
-  compareSourceEl.innerHTML = options;
+  const options = [{ value: "none", label: "不对比" }].concat(
+    alternatives.map((source) => ({
+      value: source.key,
+      label: source.label,
+    })),
+  );
+  populateSelectOptions(compareSourceEl, options);
 
   const canEnable = eligibility.eligible && alternatives.length > 0;
   compareSourceEl.disabled = !canEnable;
@@ -762,77 +863,22 @@ function isTouchPortraitViewport() {
   return window.matchMedia("(hover: none) and (pointer: coarse) and (orientation: portrait)").matches;
 }
 
-function getResponsiveChartWidth(chartWidth) {
-  if (isTouchPortraitViewport()) {
-    return Math.min(chartWidth, 760);
-  }
-  return chartWidth;
+function resolveResponsiveTier(responsiveWidth) {
+  if (responsiveWidth <= RESPONSIVE_BREAKPOINTS.compact) return "compact";
+  if (responsiveWidth <= RESPONSIVE_BREAKPOINTS.medium) return "medium";
+  if (responsiveWidth <= RESPONSIVE_BREAKPOINTS.large) return "large";
+  return "default";
 }
 
-function resolveChartGridLayout(chartWidth) {
-  const responsiveWidth = getResponsiveChartWidth(chartWidth);
-  if (responsiveWidth <= 520) {
-    return {
-      left: 52,
-      right: 34,
-      top: 36,
-      bottom: 92,
-    };
-  }
-  if (responsiveWidth <= 760) {
-    return {
-      left: 60,
-      right: 42,
-      top: 40,
-      bottom: 100,
-    };
-  }
-  if (responsiveWidth <= 1120) {
-    return {
-      left: 66,
-      right: 62,
-      top: 42,
-      bottom: 106,
-    };
-  }
-  return CHART_GRID_LAYOUT;
+function resolveResponsiveGridLayoutPreset(responsiveWidth) {
+  const tier = resolveResponsiveTier(responsiveWidth);
+  return RESPONSIVE_GRID_LAYOUTS[tier] || CHART_GRID_LAYOUT;
 }
 
-function resolveResponsiveChartLayout(chartWidth) {
-  const responsiveWidth = getResponsiveChartWidth(chartWidth);
-  if (responsiveWidth <= 520) {
-    return {
-      aspectRatio: 0.88,
-      minHeight: 330,
-      maxHeight: 560,
-      overlayScaleMin: 0.44,
-      overlayScaleMax: 0.8,
-      overlayLeftRatio: 0.185,
-      overlayTopRatio: 0.045,
-    };
-  }
-  if (responsiveWidth <= 760) {
-    return {
-      aspectRatio: 0.84,
-      minHeight: 360,
-      maxHeight: 660,
-      overlayScaleMin: 0.46,
-      overlayScaleMax: 0.9,
-      overlayLeftRatio: 0.16,
-      overlayTopRatio: 0.046,
-    };
-  }
-  if (responsiveWidth <= 1120) {
-    return {
-      aspectRatio: 0.74,
-      minHeight: 420,
-      maxHeight: 920,
-      overlayScaleMin: 0.62,
-      overlayScaleMax: 1.08,
-      overlayLeftRatio: 0.14,
-      overlayTopRatio: 0.05,
-    };
-  }
+function resolveResponsiveChartLayoutPreset(responsiveWidth) {
+  const tier = resolveResponsiveTier(responsiveWidth);
+  const preset = RESPONSIVE_CHART_LAYOUTS[tier];
+  if (preset) return preset;
   return {
     aspectRatio: CHART_LAYOUT_ASPECT_RATIO,
     minHeight: CHART_LAYOUT_MIN_HEIGHT,
@@ -842,6 +888,35 @@ function resolveResponsiveChartLayout(chartWidth) {
     overlayLeftRatio: OVERLAY_LEFT_RATIO,
     overlayTopRatio: OVERLAY_TOP_RATIO,
   };
+}
+
+function resolveResponsiveXAxisPreset(responsiveWidth) {
+  const tier = resolveResponsiveTier(responsiveWidth);
+  return RESPONSIVE_XAXIS_PRESETS[tier] || RESPONSIVE_XAXIS_PRESETS.default;
+}
+
+function resolveResponsiveOverlaySafeGap(responsiveWidth) {
+  const tier = resolveResponsiveTier(responsiveWidth);
+  if (tier === "compact") return RESPONSIVE_OVERLAY_SAFE_GAPS.compact;
+  if (tier === "medium") return RESPONSIVE_OVERLAY_SAFE_GAPS.medium;
+  return RESPONSIVE_OVERLAY_SAFE_GAPS.default;
+}
+
+function getResponsiveChartWidth(chartWidth) {
+  if (isTouchPortraitViewport()) {
+    return Math.min(chartWidth, RESPONSIVE_BREAKPOINTS.medium);
+  }
+  return chartWidth;
+}
+
+function resolveChartGridLayout(chartWidth) {
+  const responsiveWidth = getResponsiveChartWidth(chartWidth);
+  return resolveResponsiveGridLayoutPreset(responsiveWidth);
+}
+
+function resolveResponsiveChartLayout(chartWidth) {
+  const responsiveWidth = getResponsiveChartWidth(chartWidth);
+  return resolveResponsiveChartLayoutPreset(responsiveWidth);
 }
 
 function resolveXAxisLabelLayout(months, chartWidth, visibleStartIndex, visibleEndIndex) {
@@ -859,29 +934,13 @@ function resolveXAxisLabelLayout(months, chartWidth, visibleStartIndex, visibleE
   );
   const span = Math.max(0, safeEnd - safeStart);
 
-  let maxLabels = 14;
-  let fontSize = 11.8;
-  let margin = 14;
-
-  if (responsiveWidth <= 520) {
-    maxLabels = 5;
-    fontSize = 10.1;
-    margin = 12;
-  } else if (responsiveWidth <= 760) {
-    maxLabels = 7;
-    fontSize = 10.8;
-    margin = 13;
-  } else if (responsiveWidth <= 1120) {
-    maxLabels = 10;
-  }
+  const xAxisPreset = resolveResponsiveXAxisPreset(responsiveWidth);
+  const maxLabels = xAxisPreset.maxLabels;
+  const fontSize = xAxisPreset.fontSize;
+  const margin = xAxisPreset.margin;
 
   const plotWidth = Math.max(220, chartWidth - gridLayout.left - gridLayout.right);
-  const minGapPx =
-    responsiveWidth <= 520
-      ? 72
-      : responsiveWidth <= 760
-        ? 86
-        : 104;
+  const minGapPx = xAxisPreset.minGapPx;
   const maxByGap = Math.max(2, Math.floor(plotWidth / minGapPx) + 1);
   const targetLabelCount = Math.max(2, Math.min(maxLabels, maxByGap, span + 1));
 
@@ -992,7 +1051,7 @@ function syncChartViewport({ resizeChart = true } = {}) {
   const scaledOverlayHeight = rawOverlayHeight * overlayScale;
 
   const maxLeft = Math.max(8, chartWidth - scaledOverlayWidth - 8);
-  const overlaySafeGap = responsiveWidth <= 520 ? 36 : responsiveWidth <= 760 ? 30 : 18;
+  const overlaySafeGap = resolveResponsiveOverlaySafeGap(responsiveWidth);
   const requestedMinLeft = gridLayout.left + overlaySafeGap;
   const minLeft = Math.min(requestedMinLeft, maxLeft);
   const finalLeft =
@@ -1141,12 +1200,12 @@ function buildCityControls(cities, defaultSelectedNames = null) {
 }
 
 function buildMonthSelects(dates) {
-  const options = dates
-    .map((month) => `<option value="${month}">${month}</option>`)
-    .join("");
-
-  startMonthEl.innerHTML = options;
-  endMonthEl.innerHTML = options;
+  const options = dates.map((month) => ({
+    value: month,
+    label: month,
+  }));
+  populateSelectOptions(startMonthEl, options);
+  populateSelectOptions(endMonthEl, options);
 
   const defaultStart = dates.includes("2008-01") ? "2008-01" : dates[0];
   const defaultEnd = dates.includes("2026-01") ? "2026-01" : dates[dates.length - 1];
@@ -1703,9 +1762,10 @@ function resolveOverlayPresentation(rows) {
 }
 
 function formatOverlayCityCellHtml(row, isCrossSource) {
-  const cityName = row.cityName || row.name || "-";
+  const cityName = escapeHtml(row.cityName || row.name || "-");
   if (!isCrossSource || !row.sourceLabel) return cityName;
-  return `<span class="chart-stats-city-main">${cityName}<span class="chart-stats-source-tag">（${row.sourceLabel}）</span></span>`;
+  const sourceLabel = escapeHtml(row.sourceLabel);
+  return `<span class="chart-stats-city-main">${cityName}<span class="chart-stats-source-tag">（${sourceLabel}）</span></span>`;
 }
 
 function renderChartStatsOverlay(rows, startMonth, endMonth) {
@@ -1722,6 +1782,10 @@ function renderChartStatsOverlay(rows, startMonth, endMonth) {
   const rangeHtml = buildOverlayRangeHtml(startMonth, endMonth);
   const baseLabel = formatOverlayBaseLabel(startMonth);
   const baseValueHtml = buildOverlayBaseValueHtml(startMonth);
+  const escapedRangeLabel = escapeHtml(rangeLabel);
+  const escapedBaseLabel = escapeHtml(baseLabel);
+  const escapedHeaderLabel = escapeHtml(headerLabel);
+  const escapedSourceNoteText = escapeHtml(sourceNoteText);
 
   const orderedRows = [...rows].sort((a, b) => {
     const aCityName = String(a.cityName || a.name || "");
@@ -1743,7 +1807,9 @@ function renderChartStatsOverlay(rows, startMonth, endMonth) {
 
   const bodyRows = orderedRows
     .map((row) => {
-      const recoverText = row.recoverMonth ? row.recoverMonth.replace("-", ".") : "-";
+      const recoverText = row.recoverMonth
+        ? escapeHtml(row.recoverMonth.replace("-", "."))
+        : "-";
       const drawdownText = isFiniteNumber(row.drawdownFromPeakPct)
         ? `${Math.abs(row.drawdownFromPeakPct).toFixed(1)}%`
         : "-";
@@ -1759,15 +1825,15 @@ function renderChartStatsOverlay(rows, startMonth, endMonth) {
 
   chartStatsOverlayEl.innerHTML = `
     <div class="chart-stats-title-main">二手住宅价格指数：热点城市</div>
-    <div class="chart-stats-title-sub chart-stats-title-range" aria-label="${rangeLabel}">${rangeHtml}</div>
-    <div class="chart-stats-title-sub chart-stats-title-base" aria-label="${baseLabel}">
+    <div class="chart-stats-title-sub chart-stats-title-range" aria-label="${escapedRangeLabel}">${rangeHtml}</div>
+    <div class="chart-stats-title-sub chart-stats-title-base" aria-label="${escapedBaseLabel}">
       <span class="chart-stats-base-prefix">定基</span><span class="chart-stats-base-value">${baseValueHtml}</span>
     </div>
     <table>
     ${colGroupHtml}
     <thead>
       <tr>
-        <th><span class="chart-stats-th-text">${headerLabel}</span></th>
+        <th><span class="chart-stats-th-text">${escapedHeaderLabel}</span></th>
         <th><span class="chart-stats-th-text">最高位置</span></th>
         <th><span class="chart-stats-th-text">当前位置</span></th>
         <th><span class="chart-stats-th-text">累计跌幅</span></th>
@@ -1776,7 +1842,7 @@ function renderChartStatsOverlay(rows, startMonth, endMonth) {
     </thead>
     <tbody>${bodyRows}</tbody>
   </table>
-  <div class="chart-stats-note">*数据来源：${sourceNoteText}</div>
+  <div class="chart-stats-note">*数据来源：${escapedSourceNoteText}</div>
   <div class="chart-stats-note">*图表制作：公众号 - 一座独立屋</div>
   `;
   chartStatsOverlayEl.classList.add("show");
@@ -1786,6 +1852,7 @@ function renderChartStatsOverlay(rows, startMonth, endMonth) {
 
 function renderSummaryTable(rows) {
   summaryBodyEl.innerHTML = "";
+  const fragment = document.createDocumentFragment();
   for (const row of rows) {
     const tr = document.createElement("tr");
     const cells = [
@@ -1797,9 +1864,14 @@ function renderSummaryTable(rows) {
       formatPercent(row.yoyPct, 1),
       formatPercent(row.drawdownFromPeakPct, 1),
     ];
-    tr.innerHTML = cells.map((cell) => `<td>${cell}</td>`).join("");
-    summaryBodyEl.appendChild(tr);
+    cells.forEach((cell) => {
+      const td = document.createElement("td");
+      td.textContent = String(cell ?? "-");
+      tr.appendChild(td);
+    });
+    fragment.appendChild(tr);
   }
+  summaryBodyEl.appendChild(fragment);
 }
 
 function downloadByDataURL(dataURL, filename) {
@@ -2275,8 +2347,10 @@ function resolvePeakLabelLayouts(
 
   const occupiedRects = [];
 
-  const compactMobile = responsiveChartWidth <= 520;
-  const mediumMobile = responsiveChartWidth > 520 && responsiveChartWidth <= 760;
+  const compactMobile = responsiveChartWidth <= RESPONSIVE_BREAKPOINTS.compact;
+  const mediumMobile =
+    responsiveChartWidth > RESPONSIVE_BREAKPOINTS.compact &&
+    responsiveChartWidth <= RESPONSIVE_BREAKPOINTS.medium;
   const topCandidateStyles = compactMobile
     ? [
         { position: "top", distance: 5, fontSize: 9.2, padding: [1, 4] },
@@ -2614,7 +2688,10 @@ function makeOption(
   const yRange = Math.max(1, yMax - yMin);
   const usableChartWidth = Math.max(
     220,
-    chartWidth - gridLayout.left - gridLayout.right - (responsiveChartWidth <= 760 ? 12 : 24),
+    chartWidth -
+      gridLayout.left -
+      gridLayout.right -
+      (responsiveChartWidth <= RESPONSIVE_BREAKPOINTS.medium ? 12 : 24),
   );
   const labelGapMonths = Math.max(
     4,
@@ -2634,8 +2711,10 @@ function makeOption(
     visibleStartIndex,
     visibleEndIndex,
   );
-  const compactMobile = responsiveChartWidth <= 520;
-  const mediumMobile = responsiveChartWidth > 520 && responsiveChartWidth <= 760;
+  const compactMobile = responsiveChartWidth <= RESPONSIVE_BREAKPOINTS.compact;
+  const mediumMobile =
+    responsiveChartWidth > RESPONSIVE_BREAKPOINTS.compact &&
+    responsiveChartWidth <= RESPONSIVE_BREAKPOINTS.medium;
   const endLabelFontSize = compactMobile ? 11 : mediumMobile ? 14 : 18;
   const legendBaseFontSize = compactMobile ? 10.8 : mediumMobile ? 12.2 : 15;
   const legendFontSize = Number((legendBaseFontSize * 1.05).toFixed(2));
@@ -2653,7 +2732,12 @@ function makeOption(
   const legendBottom = Math.max(
     15,
     Math.round(
-      gridLayout.bottom - (responsiveChartWidth <= 520 ? 50 : responsiveChartWidth <= 760 ? 58 : 66),
+      gridLayout.bottom -
+        (responsiveChartWidth <= RESPONSIVE_BREAKPOINTS.compact
+          ? 50
+          : responsiveChartWidth <= RESPONSIVE_BREAKPOINTS.medium
+            ? 58
+            : 66),
     ),
   );
   const plotBounds = {
@@ -2792,10 +2876,10 @@ function makeOption(
       min: visibleStartIndex,
       max: visibleEndIndex,
       axisTick: {
-        show: responsiveChartWidth > 760,
+        show: responsiveChartWidth > RESPONSIVE_BREAKPOINTS.medium,
         alignWithLabel: true,
         interval: 0,
-        length: responsiveChartWidth <= 520 ? 4 : 5,
+        length: responsiveChartWidth <= RESPONSIVE_BREAKPOINTS.compact ? 4 : 5,
       },
       axisLine: { lineStyle: { color: chartTheme.xAxisLineColor } },
       axisLabel: {
