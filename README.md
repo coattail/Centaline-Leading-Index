@@ -2,154 +2,87 @@
 
 [English README](./README.en.md)
 
-一个无需构建工具（build-free）的静态网页项目，用于展示中国城市二手住宅价格指数走势，支持对比分析、图内统计表与高清导出。  
-统计局数据的“自动月更”由 GitHub Actions 在仓库侧预生成并提交数据文件，前端运行时仍是纯静态资源加载。
+一个面向研究与内容创作的中国二手住宅价格可视化项目。项目采用**纯前端静态架构**（无打包构建依赖），支持双数据源切换、区间重定基、跨源对比、图内统计表、高清导出，以及移动端适配。
 
-## 1. 项目概览
+---
 
-- 适用于研究、内容创作、趋势观察等场景。
-- 保持纯前端静态结构：`HTML + CSS + JavaScript + 本地数据文件`。
-- 支持双数据源、跨源对比、区间重定基、累计跌幅分析、图内表格汇总。
-- 近期已针对手机竖屏场景做了布局与字号自适应优化。
+## 1. 项目定位
+
+本项目用于回答两类常见问题：
+
+- 不同城市在同一时间区间内的价格走势差异如何？
+- 在同一城市维度下，不同数据源的走势差异如何？
+
+适用场景：
+
+- 房地产周期研究
+- 宏观内容图表制作
+- 城市间相对强弱观察
+
+---
 
 ## 2. 核心功能
 
-### 2.1 数据源
+### 2.1 双数据源
 
 - 中原领先指数（6城）
-- 国家统计局（二手住宅70城，链式定基）
+- 国家统计局（二手住宅 70 城）
 
-### 2.2 分析与可视化
+### 2.2 图表交互
 
-- 区间重定基：当前可视区间起点自动作为 `100`
-- 累计跌幅分析：显示 `最高点 / 累计跌幅 / 跌回`
-- 跨源对比：单选城市且在白名单城市时可启用
-- 图内统计汇总表：支持显示/隐藏
-- 高清导出：标准与超清 PNG（导出时自动排除工具按钮与滑块轨道）
-
-### 2.3 交互与样式
-
+- 最多选择 6 个城市同时对比
+- 图表下方独立时间滑块（双端拖拽）
+- 时间区间下拉 + 滑块双向联动
 - 浅色 / 深色主题切换
-- 城市列表（统计局数据源下支持三列模式）
-- 手机端自适应（图表尺寸、标注字号、表格密度等）
 
-## 3. 技术栈
+### 2.3 分析能力
 
-- 前端：原生 HTML / CSS / JavaScript
-- 图表：ECharts（CDN）
-- 截图导出：html2canvas（CDN）
-- 数据脚本：Node.js（`scripts/*.mjs`）
+- 区间重定基（起点 = 100）
+- 累计跌幅分析（峰值、回撤、跌回）
+- 跨源对比（单城市且满足规则时启用）
+- 图内统计汇总表（可开关）
 
-## 4. 本地运行
+### 2.4 导出能力
 
-```bash
-cd "/path/to/Centaline-Leading-Index"
-python3 -m http.server 9013
-```
+- 标准清晰 PNG
+- 超清 PNG
+- 导出时自动隐藏工具图标与滑块等非核心控件，保证成图干净
 
-浏览器打开：
+### 2.5 近期维护更新（2026-02-27）
 
-- <http://127.0.0.1:9013>
+- 保持交互与视觉不变，更新聚焦于可维护性和安全性。
+- 将响应式阈值与布局参数集中到统一常量（如 `RESPONSIVE_BREAKPOINTS`、`RESPONSIVE_GRID_LAYOUTS`、`RESPONSIVE_CHART_LAYOUTS`）。
+- 下拉框与汇总表改为 DOM API（`createElement` / `textContent`）构建，降低动态 HTML 拼接风险。
+- 图内统计表所有动态文本统一经过 `escapeHtml` 处理，减少潜在注入面。
 
-> 不要直接双击 `index.html` 打开（会触发本地文件跨域/资源加载问题）。
+---
 
-## 5. 页面使用流程
+## 3. 技术架构（通用版）
 
-1. 选择数据源
-2. 选择城市（最多 6 个）
-3. 选择起止时间
-4. 需要时开启跨源对比
-5. 点击“一键生成”
-6. 按需开启/关闭“累计跌幅”“表格汇总”
-7. 使用右上角工具按钮导出图像
+### 3.1 前端
 
-## 6. 数据口径与规则
+- HTML / CSS / JavaScript（Vanilla）
+- ECharts（CDN）用于图表渲染
+- html2canvas（CDN）用于页面态导出
 
-### 6.1 定基规则
+### 3.2 数据组织
 
-- 当前滑块区间起点作为 `100`
-- 滑块变化后，曲线与统计同步重算
+前端直接读取仓库内静态数据文件：
 
-### 6.2 区间有效性
+- `house-price-data.js`（中原主数据）
+- `house-price-data-nbs-70.js`（统计局 70 城）
+- 对应 JSON 产物用于校验/复用
 
-- 自动裁剪到所选城市共同有效区间
-- 若某城市在起点月无有效值，则不会纳入当次绘图
+### 3.3 更新策略
 
-### 6.3 累计跌幅触发条件
+- 中原数据：人工喂数（可配合 Excel 提取脚本）
+- 统计局数据：GitHub Actions 自动月更并提交数据文件
 
-- 当最新值较历史峰值回撤超过 `10%` 时可启用
+> 说明：即使有自动更新流程，线上页面依然是静态站点，不依赖后端实时接口。
 
-### 6.4 跌回时间（简述）
+---
 
-- 优先寻找历史同值点
-- 不存在同值时使用跨越点/最近点兜底
-
-## 7. 数据更新脚本
-
-建议顺序：**香港月度 -> 中原主数据 -> 统计局70城**。
-
-### 7.1 拉取香港 CCL 月度（按月末周值）
-
-```bash
-cd "/path/to/Centaline-Leading-Index"
-node scripts/fetch-hk-centaline-monthly.mjs
-```
-
-输出：`hk-centaline-monthly.json`
-
-### 7.2 从 Excel 提取中原主数据并合并香港
-
-```bash
-cd "/path/to/Centaline-Leading-Index"
-node scripts/extract-house-price-data.mjs "/你的Excel路径.xlsx"
-```
-
-输出：
-
-- `house-price-data.js`
-- `house-price-data.json`
-
-### 7.3 拉取并构建统计局 70 城链式序列
-
-```bash
-cd "/path/to/Centaline-Leading-Index"
-node scripts/fetch-nbs-70city-secondhand.mjs
-```
-
-输出：
-
-- `house-price-data-nbs-70.js`
-- `house-price-data-nbs-70.json`
-
-### 7.4 依赖说明
-
-- `extract-house-price-data.mjs` 依赖系统命令 `unzip`
-- 网络抓取脚本依赖可用网络（`curl` / `fetch`）
-- 建议 Node.js 18+
-
-## 8. 自动月更（统计局）
-
-项目已内置 GitHub Actions 自动月更流程：
-
-- 工作流文件：`.github/workflows/auto-update-nbs-data.yml`
-- 触发方式：
-  - 每月定时运行（UTC 时间）
-  - GitHub Actions 页面手动触发（`workflow_dispatch`）
-- 行为：
-  - 执行 `node scripts/fetch-nbs-70city-secondhand.mjs`
-  - 仅在 `house-price-data-nbs-70.js` / `house-price-data-nbs-70.json` 发生变化时自动提交并推送
-
-脚本会根据统计局接口的最新可用月份自动截断时间轴，不再写死到某个固定月份。
-该自动流程仅覆盖统计局数据；中原付费数据建议继续人工更新后再提交。
-这不会把项目变成动态后端站点：页面仍直接读取仓库中的静态 JS/JSON 数据文件。
-
-可选环境变量（高级用法）：
-
-- `NBS_OUTPUT_MIN_MONTH`（默认 `2008-01`）
-- `NBS_OUTPUT_BASE_MONTH`（默认 `2008-01`）
-- `NBS_OUTPUT_MAX_MONTH`（默认当前 UTC 月，最终会与接口最新月份取较小值）
-
-## 9. 目录结构
+## 4. 项目结构
 
 ```text
 Centaline-Leading-Index/
@@ -165,14 +98,123 @@ Centaline-Leading-Index/
 │   ├── extract-house-price-data.mjs
 │   ├── fetch-hk-centaline-monthly.mjs
 │   └── fetch-nbs-70city-secondhand.mjs
-└── README.md
+├── README.md
+└── README.en.md
 ```
 
-## 10. 发布到 GitHub Pages
+---
 
-本项目为纯静态站点，推送到 `main` 分支即可。
+## 5. 快速开始
 
-请确保以下文件位于站点根目录并可访问：
+### 5.1 环境要求
+
+- Node.js 18+
+- Python 3（用于本地静态服务）
+- 建议使用现代浏览器（Chrome / Edge / Safari 最新版）
+
+### 5.2 本地运行
+
+```bash
+git clone https://github.com/Sunny-1991/Centaline-Leading-Index.git
+cd Centaline-Leading-Index
+python3 -m http.server 9013
+```
+
+浏览器访问：
+
+- <http://127.0.0.1:9013>
+
+> 不建议直接用 `file://` 打开 `index.html`，可能触发资源加载限制。
+
+### 5.3 本地访问排查（代理 / VPN 环境）
+
+如果服务已启动但浏览器打不开本地地址，通常是代理软件拦截了本地流量。可先用以下命令临时绕过代理启动服务：
+
+```bash
+env -u HTTP_PROXY -u HTTPS_PROXY -u ALL_PROXY python3 -m http.server 9013 --bind 0.0.0.0
+```
+
+访问地址：
+
+- 当前设备：<http://127.0.0.1:9013>
+- 局域网其他设备：<http://你的局域网IP:9013>
+
+---
+
+## 6. 页面使用流程
+
+1. 选择数据源（中原 / 统计局）
+2. 勾选城市（最多 6 个）
+3. 选择起止时间
+4. 点击“一键生成”
+5. 按需开启“累计跌幅”与“表格汇总”
+6. 使用图表下方时间滑块做区间微调
+7. 右上角导出标准图或超清图
+
+---
+
+## 7. 数据更新说明
+
+### 7.1 香港月度数据（可选补充）
+
+```bash
+node scripts/fetch-hk-centaline-monthly.mjs
+```
+
+产物：`hk-centaline-monthly.json`
+
+### 7.2 中原主数据（Excel 提取）
+
+```bash
+node scripts/extract-house-price-data.mjs <excel-file.xlsx>
+```
+
+产物：
+
+- `house-price-data.js`
+- `house-price-data.json`
+
+### 7.3 统计局 70 城抓取与构建
+
+```bash
+node scripts/fetch-nbs-70city-secondhand.mjs
+```
+
+产物：
+
+- `house-price-data-nbs-70.js`
+- `house-price-data-nbs-70.json`
+
+---
+
+## 8. 统计局自动月更（GitHub Actions）
+
+工作流文件：
+
+- `.github/workflows/auto-update-nbs-data.yml`
+
+触发方式：
+
+- 每月定时执行（UTC）
+- 手动触发 `workflow_dispatch`
+
+行为：
+
+1. 执行 `node scripts/fetch-nbs-70city-secondhand.mjs`
+2. 检测数据文件是否变化
+3. 有变化才自动提交并推送
+
+自动更新覆盖统计局数据；中原付费数据建议继续人工更新。
+
+---
+
+## 9. 部署建议
+
+### 9.1 GitHub Pages
+
+本项目是纯静态站点，推送到仓库分支后即可部署。
+
+至少保证以下文件位于站点根目录并可访问：
 
 - `index.html`
 - `style.css`
@@ -180,24 +222,41 @@ Centaline-Leading-Index/
 - `house-price-data.js`
 - `house-price-data-nbs-70.js`
 
-## 11. 常见问题
+### 9.2 缓存刷新
 
-### Q1. 页面一直停留在“正在加载数据...”
+样式或脚本变更后，如页面未及时生效：
 
-- 使用 `http://` 方式访问（不要用 `file://`）
-- 检查 `house-price-data*.js` 文件是否存在且内容完整
+- 强制刷新：`Cmd/Ctrl + Shift + R`
+- 或更新 `index.html` 中资源版本参数（`?v=...`）
 
-### Q2. 改了代码但页面没变化
+---
 
-- 强制刷新（`Cmd/Ctrl + Shift + R`）
-- 检查 `index.html` 里资源 `?v=` 参数是否已更新
+## 10. 常见问题（FAQ）
 
-### Q3. 导出图与页面不一致
+### Q1：页面一直显示“正在加载数据...”
 
-- 先点击“一键生成”再导出
-- 导出基于当前页面状态（区间、城市、分析开关）
+- 请确认通过 `http://` 访问，而不是 `file://`
+- 请确认 `house-price-data*.js` 文件存在且内容完整
 
-## 12. 合规说明
+### Q2：导出图与页面显示不一致
 
-- 数据源可能涉及授权与使用限制，请在合法范围内获取和使用。
-- 本项目默认用于研究、分析与交流场景，对外发布请遵守数据源与平台规则。
+- 先点击“一键生成”后再导出
+- 导出基于当前选择状态（城市、区间、分析开关）
+
+### Q3：为什么有自动月更还叫静态网页？
+
+- 自动月更只是“离线更新仓库数据文件”
+- 页面运行时依然只加载静态 JS/JSON 文件，不依赖后端 API
+
+### Q4：本地已启动服务但页面仍打不开？
+
+- 先检查代理规则，确保 `localhost`、`127.0.0.1` 与局域网网段走直连。
+- 用命令行验证服务是否可达：`curl --noproxy '*' -I http://127.0.0.1:9013`。
+- 若命令可达而浏览器不可达，通常是浏览器代理规则未直连本地地址。
+
+---
+
+## 11. 合规与声明
+
+- 数据可能受来源平台授权规则约束，请在合法合规前提下使用。
+- 本项目主要用于研究、分析与交流，不构成投资或交易建议。
