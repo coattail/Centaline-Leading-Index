@@ -113,7 +113,14 @@ const OVERLAY_CITY_ORDER = ["北京", "上海", "广州", "深圳", "天津", "�
 const OVERLAY_CITY_ORDER_INDEX = new Map(
   OVERLAY_CITY_ORDER.map((name, index) => [name, index]),
 );
-const CHART_FONT_FAMILY = '"STKaiti", "Kaiti SC", "KaiTi", "BiauKai", serif';
+const CHART_FONT_FACE = "ProjectChartSTKaiti";
+const CHART_FONT_FAMILY =
+  '"ProjectChartSTKaiti", "STKaiti", "Kaiti SC", "KaiTi", "BiauKai", serif';
+const CHART_FONT_LOAD_TARGETS = Object.freeze([
+  `400 16px "${CHART_FONT_FACE}"`,
+  `600 16px "${CHART_FONT_FACE}"`,
+  `700 16px "${CHART_FONT_FACE}"`,
+]);
 const CHART_LAYOUT_BASE_WIDTH = 1160;
 const CHART_LAYOUT_ASPECT_RATIO = 0.78;
 const CHART_LAYOUT_MIN_HEIGHT = 420;
@@ -128,6 +135,7 @@ const OVERLAY_TOP_RATIO = 0.05;
 const OVERLAY_SCALE_MIN = 0.72;
 const OVERLAY_SCALE_MAX = 1.3;
 const OVERLAY_TABLE_SCALE = 1.05;
+const OVERLAY_EMPHASIS_SCALE = 1.05;
 const CHART_GRID_LAYOUT = Object.freeze({
   left: 70,
   right: 90,
@@ -338,6 +346,7 @@ let timeZoomRenderFrame = null;
 let isSyncingTimeZoomInputs = false;
 let textMeasureContext = null;
 let resizeRenderTimer = null;
+let chartFontsReadyPromise = null;
 
 function isFiniteNumber(value) {
   return typeof value === "number" && Number.isFinite(value);
@@ -366,6 +375,39 @@ function formatOverlayRangeLabel(startMonth, endMonth) {
 
 function formatOverlayBaseLabel(baseMonth) {
   return `定基${formatMonthZh(baseMonth)}＝100`;
+}
+
+function waitForChartFonts(timeoutMs = 1800) {
+  if (typeof document === "undefined" || !document.fonts) {
+    return Promise.resolve();
+  }
+  if (typeof document.fonts.load !== "function") {
+    return Promise.resolve();
+  }
+  if (chartFontsReadyPromise) return chartFontsReadyPromise;
+
+  const sampleText = "房价指数";
+  const allLoaded =
+    typeof document.fonts.check === "function" &&
+    CHART_FONT_LOAD_TARGETS.every((descriptor) => document.fonts.check(descriptor, sampleText));
+  if (allLoaded) {
+    chartFontsReadyPromise = Promise.resolve();
+    return chartFontsReadyPromise;
+  }
+
+  const loadPromise = Promise.all(
+    CHART_FONT_LOAD_TARGETS.map((descriptor) => document.fonts.load(descriptor, sampleText)),
+  ).catch(() => undefined);
+
+  const timeoutPromise = new Promise((resolve) => {
+    setTimeout(resolve, Math.max(0, timeoutMs));
+  });
+
+  chartFontsReadyPromise = Promise.race([loadPromise, timeoutPromise])
+    .then(() => document.fonts.ready.catch(() => undefined))
+    .then(() => undefined);
+
+  return chartFontsReadyPromise;
 }
 
 function escapeHtml(value) {
@@ -2143,7 +2185,9 @@ function resolveOverlayPresentation(rows) {
 
 function formatOverlayCityCellHtml(row, isCrossSource) {
   const cityName = escapeHtml(row.cityName || row.name || "-");
-  if (!isCrossSource || !row.sourceLabel) return cityName;
+  if (!isCrossSource || !row.sourceLabel) {
+    return `<span class="chart-stats-city-main">${cityName}</span>`;
+  }
   const sourceLabel = escapeHtml(row.sourceLabel);
   return `<span class="chart-stats-city-main">${cityName}<span class="chart-stats-source-tag">（${sourceLabel}）</span></span>`;
 }
@@ -2355,6 +2399,20 @@ async function captureChartStageSnapshot(pixelRatio = 2) {
   };
 }
 
+function getOverlayPseudoBoldOffset(fontSizePx) {
+  const safeSize = Number.isFinite(fontSizePx) ? fontSizePx : 12;
+  return Math.max(0.12, safeSize * 0.012);
+}
+
+function fillTextWithPseudoBold(ctx, text, x, y, fontSizePx, enabled = true) {
+  const value = String(text ?? "");
+  ctx.fillText(value, x, y);
+  if (!enabled || !value) return;
+  const offset = getOverlayPseudoBoldOffset(fontSizePx);
+  ctx.fillText(value, x + offset, y);
+  ctx.fillText(value, x - offset, y);
+}
+
 function drawOverlaySummaryOnCanvas(ctx, canvasWidth, canvasHeight, exportContext) {
   if (!uiState.showChartTable || !exportContext) return;
   const rows = Array.isArray(exportContext.visibleSummaryRows)
@@ -2400,12 +2458,14 @@ function drawOverlaySummaryOnCanvas(ctx, canvasWidth, canvasHeight, exportContex
     ? boxX - tableDelta * 0.35
     : boxX - tableDelta / 2;
   const centerX = tableX + tableW / 2;
-  const fontFamily = '"STKaiti","Kaiti SC","KaiTi","BiauKai",serif';
+  const fontFamily = CHART_FONT_FAMILY;
   const chartTheme = getActiveChartThemeStyle();
 
-  const mainFontSize = Math.max(16, Math.round(19 * scaleY));
+  const mainFontSize = Math.max(16, Math.round(19 * scaleY * OVERLAY_EMPHASIS_SCALE));
   const subFontSize = Math.max(12, Math.round(13 * scaleY));
   const cellFontSize = Math.max(12, Math.round(13 * scaleY * OVERLAY_TABLE_SCALE));
+  const headerFontSize = Math.max(12, Math.round(cellFontSize * OVERLAY_EMPHASIS_SCALE));
+  const cityFontSize = Math.max(12, Math.round(cellFontSize * OVERLAY_EMPHASIS_SCALE));
   const noteFontSize = Math.max(10, Math.round(12 * scaleY));
   const titleColor = chartTheme.overlayTitleColor;
   const lineColor = chartTheme.overlayLineColor;
@@ -2416,7 +2476,7 @@ function drawOverlaySummaryOnCanvas(ctx, canvasWidth, canvasHeight, exportContex
   ctx.textBaseline = "top";
 
   ctx.font = `700 ${mainFontSize}px ${fontFamily}`;
-  ctx.fillText("二手住宅价格指数：热点城市", centerX, cursorY);
+  fillTextWithPseudoBold(ctx, "二手住宅价格指数：热点城市", centerX, cursorY, mainFontSize, true);
   cursorY += Math.round(mainFontSize * 1.24);
 
   ctx.font = `400 ${subFontSize}px ${fontFamily}`;
@@ -2455,8 +2515,8 @@ function drawOverlaySummaryOnCanvas(ctx, canvasWidth, canvasHeight, exportContex
   const header = [headerLabel, "最高位置", "当前位置", "累计跌幅", "跌回"];
   const colRatios = getOverlayColumnRatios(isCrossSource);
   const colWidths = colRatios.map((ratio) => ratio * tableW);
-  const rowHeight = Math.max(18, Math.round(cellFontSize * 1.35));
-  const headerHeight = Math.max(19, Math.round(cellFontSize * 1.42));
+  const rowHeight = Math.max(18, Math.round(Math.max(cellFontSize, cityFontSize) * 1.35));
+  const headerHeight = Math.max(19, Math.round(headerFontSize * 1.42));
   const topY = cursorY;
 
   ctx.strokeStyle = lineColor;
@@ -2472,14 +2532,14 @@ function drawOverlaySummaryOnCanvas(ctx, canvasWidth, canvasHeight, exportContex
   ctx.lineTo(tableX + tableW, headerBottomY);
   ctx.stroke();
 
-  ctx.font = `700 ${cellFontSize}px ${fontFamily}`;
+  ctx.font = `700 ${headerFontSize}px ${fontFamily}`;
   ctx.fillStyle = chartTheme.overlayTextColor;
   ctx.textBaseline = "middle";
   let runningX = tableX;
-  const headerTextY = topY + headerHeight / 2 - Math.max(0.5, cellFontSize * 0.05);
+  const headerTextY = topY + headerHeight / 2 - Math.max(0.5, headerFontSize * 0.05);
   for (let i = 0; i < header.length; i += 1) {
     const midX = runningX + colWidths[i] / 2;
-    ctx.fillText(header[i], midX, headerTextY);
+    fillTextWithPseudoBold(ctx, header[i], midX, headerTextY, headerFontSize, true);
     runningX += colWidths[i];
   }
   ctx.textBaseline = "top";
@@ -2499,19 +2559,20 @@ function drawOverlaySummaryOnCanvas(ctx, canvasWidth, canvasHeight, exportContex
     let colStartX = tableX;
     for (let i = 0; i < cells.length; i += 1) {
       const midX = colStartX + colWidths[i] / 2;
-      const rowTextY = rowTop + Math.round((rowHeight - cellFontSize) / 2) - 1;
+      const currentFontSize = i === 0 ? cityFontSize : cellFontSize;
+      const rowTextY = rowTop + Math.round((rowHeight - currentFontSize) / 2) - 1;
       if (i === 0 && sourceLabel) {
         const mainText = cityName;
         const subText = `（${sourceLabel}）`;
-        const mainFont = `400 ${cellFontSize}px ${fontFamily}`;
-        const subFontSize = Math.max(10, Math.round(cellFontSize * 0.82));
+        const mainFont = `400 ${cityFontSize}px ${fontFamily}`;
+        const subFontSize = Math.max(10, Math.round(cityFontSize * 0.82));
         const subFont = `400 ${subFontSize}px ${fontFamily}`;
 
         ctx.textAlign = "center";
         ctx.font = mainFont;
         const mainWidth = ctx.measureText(mainText).width;
         ctx.fillStyle = chartTheme.overlayTextColor;
-        ctx.fillText(mainText, midX, rowTextY);
+        fillTextWithPseudoBold(ctx, mainText, midX, rowTextY, cityFontSize, true);
 
         ctx.textAlign = "left";
         ctx.font = subFont;
@@ -2519,13 +2580,14 @@ function drawOverlaySummaryOnCanvas(ctx, canvasWidth, canvasHeight, exportContex
         ctx.fillText(
           subText,
           midX + mainWidth / 2 + 2,
-          rowTextY + Math.max(0, Math.round((cellFontSize - subFontSize) * 0.45)),
+          rowTextY + Math.max(0, Math.round((cityFontSize - subFontSize) * 0.45)),
         );
         ctx.fillStyle = chartTheme.overlayTextColor;
         ctx.textAlign = "center";
         ctx.font = mainFont;
       } else {
-        ctx.fillText(String(cells[i]), midX, rowTextY);
+        ctx.font = `400 ${currentFontSize}px ${fontFamily}`;
+        fillTextWithPseudoBold(ctx, String(cells[i]), midX, rowTextY, currentFontSize, i === 0);
       }
       colStartX += colWidths[i];
     }
@@ -2556,6 +2618,8 @@ async function exportCurrentChartImage(pixelRatio = 2, label = "标准清晰") {
     setStatus("暂无可导出的图表，请先生成。", true);
     return;
   }
+
+  await waitForChartFonts();
 
   let stageSnapshot = null;
   try {
@@ -3268,7 +3332,7 @@ function makeOption(
         margin: xAxisLabelLayout.margin,
         rotate: xAxisLabelLayout.rotate,
         fontSize: xAxisLabelFontSize,
-        fontWeight: 800,
+        fontWeight: 700,
         hideOverlap: true,
         showMinLabel: true,
         showMaxLabel: true,
@@ -4416,7 +4480,7 @@ function bindEvents() {
   });
 }
 
-function init() {
+async function init() {
   const availableSources = listAvailableSources();
   if (availableSources.length === 0) {
     setStatus("数据加载失败，请先生成 house-price-data.js / house-price-data-nbs-70.js。", true);
@@ -4436,6 +4500,7 @@ function init() {
 
   bindEvents();
   bindChartWheelToPageScroll();
+  await waitForChartFonts();
   render();
 }
 
