@@ -28,6 +28,9 @@ const endMonthEl = document.getElementById("endMonth");
 const dataSourceEl = document.getElementById("dataSource");
 const themeModeEl = document.getElementById("themeMode");
 const cityBlockTitleEl = document.getElementById("cityBlockTitle");
+const citySearchWrapEl = document.getElementById("citySearchWrap");
+const citySearchInputEl = document.getElementById("citySearchInput");
+const citySearchHintEl = document.getElementById("citySearchHint");
 const compareSourceEl = document.getElementById("compareSource");
 const compareHintEl = document.getElementById("compareHint");
 const renderBtn = document.getElementById("renderBtn");
@@ -74,46 +77,38 @@ const LEGACY_CORE_CITY_COLORS_DARK = Object.freeze({
   天津: "#8db3cc",
 });
 const OTHER_CITY_DISTINCT_PALETTE = [
-  "#1f84cd",
-  "#1d9aa0",
-  "#3f69d6",
-  "#4f94bb",
-  "#5f8d45",
-  "#be7d2e",
-  "#6a78d8",
-  "#0f8a80",
-  "#8a60b7",
-  "#5f7e92",
-  "#ba6b65",
-  "#2d5fb7",
-  "#2d8d9b",
-  "#7b7fbf",
+  "#c63f4b",
+  "#8a58d0",
+  "#0d9aa0",
+  "#c0447f",
+  "#58923a",
+  "#c9782d",
+  "#526ad1",
+  "#2d7eb9",
+  "#90864b",
+  "#9b5bc1",
+  "#ca6b56",
+  "#1d9b73",
+  "#b74472",
+  "#4463b5",
 ];
 const OTHER_CITY_DISTINCT_PALETTE_DARK = [
-  "#7ec8ff",
-  "#f5b56a",
-  "#7fded5",
-  "#f29b5d",
-  "#95b8ff",
-  "#e8c96d",
-  "#8fd1ff",
-  "#d59b63",
-  "#7cc2b8",
-  "#c1b2ff",
-  "#efc07a",
-  "#9fd0f0",
-  "#f0aa67",
-  "#9ed9c3",
-  "#c3d3df",
+  "#ff8f99",
+  "#cb9dff",
+  "#66d3d9",
+  "#ff9dc8",
+  "#95ce74",
+  "#ffbf74",
+  "#9ea9ff",
+  "#6fb6ff",
+  "#b9bb86",
+  "#d39eff",
+  "#ffb595",
+  "#8ddfbb",
+  "#ff94b8",
+  "#a5c4ff",
+  "#ffd28a",
 ];
-const dynamicCityColorMaps = {
-  [THEME_MODE_LIGHT]: new Map(),
-  [THEME_MODE_DARK]: new Map(),
-};
-const dynamicColorCursors = {
-  [THEME_MODE_LIGHT]: 0,
-  [THEME_MODE_DARK]: 0,
-};
 const OVERLAY_CITY_ORDER = ["北京", "上海", "广州", "深圳", "天津", "香港"];
 const OVERLAY_CITY_ORDER_INDEX = new Map(
   OVERLAY_CITY_ORDER.map((name, index) => [name, index]),
@@ -282,6 +277,50 @@ const OVERLAY_SOURCE_PROFILES = Object.freeze({
   },
 });
 const CITY_LIST_THREE_COLS_CLASS = "city-list--three-cols";
+const PROVINCE_NAME_BY_CODE = Object.freeze({
+  "11": "北京市",
+  "12": "天津市",
+  "13": "河北省",
+  "14": "山西省",
+  "15": "内蒙古自治区",
+  "21": "辽宁省",
+  "22": "吉林省",
+  "23": "黑龙江省",
+  "31": "上海市",
+  "32": "江苏省",
+  "33": "浙江省",
+  "34": "安徽省",
+  "35": "福建省",
+  "36": "江西省",
+  "37": "山东省",
+  "41": "河南省",
+  "42": "湖北省",
+  "43": "湖南省",
+  "44": "广东省",
+  "45": "广西壮族自治区",
+  "46": "海南省",
+  "50": "重庆市",
+  "51": "四川省",
+  "52": "贵州省",
+  "53": "云南省",
+  "54": "西藏自治区",
+  "61": "陕西省",
+  "62": "甘肃省",
+  "63": "青海省",
+  "64": "宁夏回族自治区",
+  "65": "新疆维吾尔自治区",
+});
+const PROVINCE_EXTRA_ALIASES = Object.freeze({
+  "11": ["北京"],
+  "12": ["天津"],
+  "15": ["内蒙古", "内蒙"],
+  "31": ["上海"],
+  "45": ["广西"],
+  "50": ["重庆"],
+  "54": ["西藏"],
+  "64": ["宁夏"],
+  "65": ["新疆"],
+});
 const cityById = new Map();
 const cityValidRanges = new Map();
 const uiState = {
@@ -451,14 +490,14 @@ function getActiveChartThemeStyle() {
   return CHART_THEME_STYLES[getCurrentThemeMode()] || CHART_THEME_STYLES[THEME_MODE_LIGHT];
 }
 
-function getThemeCoreCityPalette() {
-  return getCurrentThemeMode() === THEME_MODE_DARK
+function getThemeCoreCityPalette(themeMode = getCurrentThemeMode()) {
+  return normalizeThemeMode(themeMode) === THEME_MODE_DARK
     ? LEGACY_CORE_CITY_COLORS_DARK
     : LEGACY_CORE_CITY_COLORS;
 }
 
-function getThemeCityPalette() {
-  return getCurrentThemeMode() === THEME_MODE_DARK
+function getThemeCityPalette(themeMode = getCurrentThemeMode()) {
+  return normalizeThemeMode(themeMode) === THEME_MODE_DARK
     ? OTHER_CITY_DISTINCT_PALETTE_DARK
     : OTHER_CITY_DISTINCT_PALETTE;
 }
@@ -532,6 +571,133 @@ function buildCityMaps() {
   });
 }
 
+function normalizeCitySearchKeyword(value = "") {
+  return String(value || "")
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, "")
+    .replace(/[·•・.。]/g, "");
+}
+
+function simplifyProvinceName(value = "") {
+  const rawText = String(value || "").trim();
+  if (!rawText) return "";
+  return rawText
+    .replace(/特别行政区/g, "")
+    .replace(/(壮族自治区|回族自治区|维吾尔自治区|自治区)$/g, "")
+    .replace(/(省|市)$/g, "")
+    .replace(/壮族|回族|维吾尔/g, "")
+    .trim();
+}
+
+function getCityRegCode(city) {
+  const regCode = String(city?.regCode || "").trim();
+  if (/^\d{6}$/.test(regCode)) return regCode;
+  const cityId = String(city?.id || "").trim();
+  const matched = cityId.match(/city_nbs_(\d{6})/);
+  return matched ? matched[1] : "";
+}
+
+function getProvinceAliasesByCode(provinceCode) {
+  const code = String(provinceCode || "").trim();
+  if (!code) return [];
+  const aliasSet = new Set();
+  const baseName = PROVINCE_NAME_BY_CODE[code];
+  const extraAliases = PROVINCE_EXTRA_ALIASES[code] || [];
+  const pushAlias = (value) => {
+    const text = String(value || "").trim();
+    if (!text) return;
+    aliasSet.add(text);
+    const simplified = simplifyProvinceName(text);
+    if (simplified) aliasSet.add(simplified);
+  };
+  pushAlias(baseName);
+  extraAliases.forEach(pushAlias);
+  return [...aliasSet];
+}
+
+function buildCitySearchTokens(city) {
+  const tokenSet = new Set();
+  const pushToken = (value) => {
+    const token = normalizeCitySearchKeyword(value);
+    if (token) tokenSet.add(token);
+  };
+
+  const cityName = String(city?.name || "").trim();
+  pushToken(cityName);
+  if (cityName.endsWith("市")) {
+    pushToken(cityName.slice(0, -1));
+  }
+
+  const regCode = getCityRegCode(city);
+  const provinceCode = regCode.slice(0, 2);
+  const provinceAliases = getProvinceAliasesByCode(provinceCode);
+  provinceAliases.forEach(pushToken);
+
+  return [...tokenSet];
+}
+
+function applyCitySearchFilter() {
+  const labels = [...cityListEl.querySelectorAll(".city-item")];
+  const totalCount = labels.length;
+  const isNbsSource = activeSourceMeta?.key === "nbs70";
+  const keywordRaw = citySearchInputEl ? citySearchInputEl.value : "";
+  const keyword = isNbsSource ? normalizeCitySearchKeyword(keywordRaw) : "";
+  let visibleCount = 0;
+
+  labels.forEach((label) => {
+    const tokens = String(label.dataset.searchTokens || "")
+      .split("|")
+      .filter((token) => Boolean(token));
+    const matched = !keyword || tokens.some((token) => token.includes(keyword));
+    label.classList.toggle("city-item-hidden", !matched);
+    if (matched) visibleCount += 1;
+  });
+
+  if (citySearchHintEl) {
+    if (!isNbsSource) {
+      citySearchHintEl.textContent = "";
+    } else if (!keyword) {
+      citySearchHintEl.textContent = `可搜索城市或省份（如 杭州、广东），当前 ${totalCount} 个城市。`;
+    } else if (visibleCount === 0) {
+      citySearchHintEl.textContent = `未找到“${String(keywordRaw || "").trim()}”相关城市，可试试省份名。`;
+    } else {
+      citySearchHintEl.textContent = `匹配到 ${visibleCount} / ${totalCount} 个城市。`;
+    }
+  }
+}
+
+function syncCitySearchUiForSource(isNbsSource) {
+  if (citySearchWrapEl) {
+    citySearchWrapEl.classList.toggle("is-hidden", !isNbsSource);
+  }
+  if (citySearchInputEl) {
+    citySearchInputEl.disabled = !isNbsSource;
+    if (!isNbsSource) {
+      citySearchInputEl.value = "";
+    }
+  }
+  if (!isNbsSource) {
+    cityListEl.querySelectorAll(".city-item-hidden").forEach((label) => {
+      label.classList.remove("city-item-hidden");
+    });
+    if (citySearchHintEl) {
+      citySearchHintEl.textContent = "";
+    }
+  }
+}
+
+function buildSourceSubtitle(source) {
+  const baseText = String(source?.heroSubtitle || "").trim();
+  if (!source || source.key !== "nbs70") return baseText;
+  const dates = Array.isArray(source.data?.dates) ? source.data.dates : [];
+  if (dates.length === 0) return baseText;
+  const startMonth = normalizeMonthToken(dates[0]) || String(dates[0] || "");
+  const endMonth = normalizeMonthToken(dates[dates.length - 1]) || String(dates[dates.length - 1] || "");
+  if (!startMonth || !endMonth) return baseText;
+  return `${baseText}｜数据范围：${startMonth} ~ ${endMonth}`;
+}
+
 function applyDataSource(sourceKey) {
   const source = findSourceByKey(sourceKey);
   if (!source) return false;
@@ -544,7 +710,7 @@ function applyDataSource(sourceKey) {
   raw = source.data;
   activeSourceMeta = source;
   if (sourceSubtitleEl) {
-    sourceSubtitleEl.textContent = source.heroSubtitle;
+    sourceSubtitleEl.textContent = buildSourceSubtitle(source);
   }
   if (dataSourceEl && dataSourceEl.value !== source.key) {
     dataSourceEl.value = source.key;
@@ -554,6 +720,7 @@ function applyDataSource(sourceKey) {
     cityBlockTitleEl.textContent =
       isNbsSource ? "城市（可选多至6个）" : "城市";
   }
+  syncCitySearchUiForSource(isNbsSource);
   cityListEl.classList.add("city-list");
   cityListEl.classList.toggle(CITY_LIST_THREE_COLS_CLASS, isNbsSource);
   cityListEl.style.display = "grid";
@@ -579,6 +746,7 @@ function applyDataSource(sourceKey) {
     ? previousSelectedCityNames.filter((name) => currentCityNameSet.has(name))
     : source.defaultSelectedNames;
   buildCityControls(raw.cities, nextSelectedNames);
+  applyCitySearchFilter();
   buildMonthSelects(raw.dates);
   refreshCompareSourceControl({ keepSelection: false });
   return true;
@@ -1187,6 +1355,10 @@ function buildCityControls(cities, defaultSelectedNames = null) {
   for (const city of orderedCities) {
     const label = document.createElement("label");
     label.className = "city-item";
+    const searchTokens = buildCitySearchTokens(city);
+    if (searchTokens.length > 0) {
+      label.dataset.searchTokens = searchTokens.join("|");
+    }
     const input = document.createElement("input");
     input.type = "checkbox";
     input.value = city.id;
@@ -1207,47 +1379,200 @@ function buildMonthSelects(dates) {
   populateSelectOptions(startMonthEl, options);
   populateSelectOptions(endMonthEl, options);
 
-  const defaultStart = dates.includes("2008-01") ? "2008-01" : dates[0];
+  const isNbsSource = activeSourceMeta?.key === "nbs70";
+  const defaultStart = isNbsSource
+    ? dates[0]
+    : (dates.includes("2008-01") ? "2008-01" : dates[0]);
   const defaultEnd = dates.includes("2026-01") ? "2026-01" : dates[dates.length - 1];
   startMonthEl.value = defaultStart;
   endMonthEl.value = defaultEnd;
   syncTimeZoomWidgetFromMonthSelects();
 }
 
-function colorFromCityName(cityName = "", index = 0, themeMode = getCurrentThemeMode()) {
-  const text = String(cityName);
+function hashTextSeed(text = "") {
+  const safeText = String(text);
   let hash = 0;
-  for (let i = 0; i < text.length; i += 1) {
-    hash = (hash * 131 + text.charCodeAt(i)) >>> 0;
+  for (let i = 0; i < safeText.length; i += 1) {
+    hash = (hash * 131 + safeText.charCodeAt(i)) >>> 0;
   }
-  const seed = (hash + index * 67) % 360;
-  const hue = (seed * 19) % 360;
-  if (themeMode === THEME_MODE_DARK) {
-    return `hsl(${hue}, 76%, 63%)`;
-  }
-  return `hsl(${hue}, 72%, 40%)`;
+  return hash;
 }
 
-function getColor(cityName, index) {
-  const themeMode = getCurrentThemeMode();
+function hexToRgb(hexColor) {
+  const rawHex = String(hexColor || "").trim().replace(/^#/, "");
+  if (!(rawHex.length === 3 || rawHex.length === 6)) return null;
+  const normalizedHex =
+    rawHex.length === 3
+      ? rawHex
+          .split("")
+          .map((char) => `${char}${char}`)
+          .join("")
+      : rawHex;
+  const parsed = Number.parseInt(normalizedHex, 16);
+  if (!Number.isFinite(parsed)) return null;
+  return {
+    r: (parsed >> 16) & 255,
+    g: (parsed >> 8) & 255,
+    b: parsed & 255,
+  };
+}
+
+function rgbToHsl(rgb) {
+  if (!rgb) return null;
+  const r = clampNumber((Number(rgb.r) || 0) / 255, 0, 1);
+  const g = clampNumber((Number(rgb.g) || 0) / 255, 0, 1);
+  const b = clampNumber((Number(rgb.b) || 0) / 255, 0, 1);
+  const max = Math.max(r, g, b);
+  const min = Math.min(r, g, b);
+  const l = (max + min) / 2;
+  if (max === min) {
+    return {
+      h: 0,
+      s: 0,
+      l: l * 100,
+    };
+  }
+  const delta = max - min;
+  const s = l > 0.5 ? delta / (2 - max - min) : delta / (max + min);
+  let h = 0;
+  switch (max) {
+    case r:
+      h = ((g - b) / delta + (g < b ? 6 : 0)) * 60;
+      break;
+    case g:
+      h = ((b - r) / delta + 2) * 60;
+      break;
+    default:
+      h = ((r - g) / delta + 4) * 60;
+      break;
+  }
+  return {
+    h: (h + 360) % 360,
+    s: s * 100,
+    l: l * 100,
+  };
+}
+
+function parseColorToHsl(color) {
+  const text = String(color || "").trim();
+  if (!text) return null;
+  if (text.startsWith("#")) {
+    return rgbToHsl(hexToRgb(text));
+  }
+  const hslMatch = text.match(
+    /^hsl\(\s*(-?\d+(?:\.\d+)?)\s*(?:deg)?\s*,\s*(\d+(?:\.\d+)?)%\s*,\s*(\d+(?:\.\d+)?)%\s*\)$/i,
+  );
+  if (!hslMatch) return null;
+  return {
+    h: ((Number(hslMatch[1]) % 360) + 360) % 360,
+    s: clampNumber(Number(hslMatch[2]), 0, 100),
+    l: clampNumber(Number(hslMatch[3]), 0, 100),
+  };
+}
+
+function calcHslDistance(a, b) {
+  if (!a || !b) return 0;
+  const hueDeltaRaw = Math.abs(a.h - b.h);
+  const hueDelta = Math.min(hueDeltaRaw, 360 - hueDeltaRaw) / 180;
+  const satDelta = Math.abs(a.s - b.s) / 100;
+  const lightDelta = Math.abs(a.l - b.l) / 100;
+  return hueDelta * 0.72 + satDelta * 0.2 + lightDelta * 0.08;
+}
+
+function getMinColorDistance(color, usedColors) {
+  if (!Array.isArray(usedColors) || usedColors.length === 0) return 1;
+  const target = parseColorToHsl(color);
+  if (!target) return 1;
+  let minDistance = Number.POSITIVE_INFINITY;
+  for (const usedColor of usedColors) {
+    const compared = parseColorToHsl(usedColor);
+    if (!compared) continue;
+    minDistance = Math.min(minDistance, calcHslDistance(target, compared));
+  }
+  return Number.isFinite(minDistance) ? minDistance : 1;
+}
+
+function colorFromCityName(cityName = "", index = 0, themeMode = getCurrentThemeMode()) {
+  const normalizedTheme = normalizeThemeMode(themeMode);
+  const seed = hashTextSeed(cityName) + index * 67;
+  const hue = (seed * 37) % 360;
+  const saturation = normalizedTheme === THEME_MODE_DARK ? 84 : 74;
+  const lightness = normalizedTheme === THEME_MODE_DARK ? 66 : 44;
+  return `hsl(${hue.toFixed(1)}, ${saturation}%, ${lightness}%)`;
+}
+
+function pickDistinctCityColor(cityName, index, usedColors, themeMode = getCurrentThemeMode()) {
+  const normalizedTheme = normalizeThemeMode(themeMode);
+  const palette = getThemeCityPalette(normalizedTheme);
+  const seed = hashTextSeed(cityName);
+  const paletteSize = palette.length;
+  const candidates = [];
+
+  if (paletteSize > 0) {
+    const startOffset = seed % paletteSize;
+    for (let i = 0; i < paletteSize; i += 1) {
+      candidates.push(palette[(startOffset + i) % paletteSize]);
+    }
+  }
+  for (let i = 0; i < 36; i += 1) {
+    candidates.push(colorFromCityName(cityName, index + i * 2, normalizedTheme));
+  }
+
+  const distinctThreshold = 0.235;
+  let bestColor = candidates[0] || colorFromCityName(cityName, index, normalizedTheme);
+  let bestScore = getMinColorDistance(bestColor, usedColors);
+  for (const candidate of candidates) {
+    const score = getMinColorDistance(candidate, usedColors);
+    if (score > bestScore) {
+      bestScore = score;
+      bestColor = candidate;
+    }
+    if (score >= distinctThreshold) {
+      return candidate;
+    }
+  }
+  return bestColor;
+}
+
+function buildSelectedCityColorMap(cityNames, themeMode = getCurrentThemeMode()) {
+  const normalizedTheme = normalizeThemeMode(themeMode);
+  const corePalette = getThemeCoreCityPalette(normalizedTheme);
+  const orderedNames = [];
+  const seen = new Set();
+  for (const cityName of cityNames || []) {
+    const text = String(cityName || "");
+    if (!text || seen.has(text)) continue;
+    seen.add(text);
+    orderedNames.push(text);
+  }
+
+  const colorMap = new Map();
+  const usedColors = [];
+  for (const cityName of orderedNames) {
+    const fixedColor = corePalette[cityName];
+    if (!fixedColor) continue;
+    colorMap.set(cityName, fixedColor);
+    usedColors.push(fixedColor);
+  }
+
+  let nonCoreIndex = 0;
+  for (const cityName of orderedNames) {
+    if (colorMap.has(cityName)) continue;
+    const pickedColor = pickDistinctCityColor(cityName, nonCoreIndex, usedColors, normalizedTheme);
+    colorMap.set(cityName, pickedColor);
+    usedColors.push(pickedColor);
+    nonCoreIndex += 1;
+  }
+  return colorMap;
+}
+
+function getColor(cityName, index, selectedColorMap = null) {
   const corePalette = getThemeCoreCityPalette();
   if (corePalette[cityName]) return corePalette[cityName];
-
-  const palette = getThemeCityPalette();
-  const themeColorMap = dynamicCityColorMaps[themeMode];
-  if (themeColorMap.has(cityName)) return themeColorMap.get(cityName);
-
-  let cursor = dynamicColorCursors[themeMode];
-  let nextColor = "";
-  if (cursor < palette.length) {
-    nextColor = palette[cursor];
-    cursor += 1;
-  } else {
-    nextColor = colorFromCityName(cityName, index + cursor, themeMode);
+  if (selectedColorMap instanceof Map && selectedColorMap.has(cityName)) {
+    return selectedColorMap.get(cityName);
   }
-  dynamicColorCursors[themeMode] = cursor;
-  themeColorMap.set(cityName, nextColor);
-  return nextColor;
+  return pickDistinctCityColor(cityName, index, Object.values(corePalette), getCurrentThemeMode());
 }
 
 function getLastFiniteInfo(values, dates) {
@@ -1275,6 +1600,64 @@ function alignSeriesByMonths(dataset, series, months) {
     const value = monthToValue.get(month);
     return isFiniteNumber(value) ? value : null;
   });
+}
+
+function buildAnchoredCompareSeries(
+  compareSeriesByMonths,
+  targetNormalizedSeries,
+  months,
+  preferredAnchorMonth = "2008-01",
+) {
+  if (
+    !Array.isArray(compareSeriesByMonths) ||
+    !Array.isArray(targetNormalizedSeries) ||
+    !Array.isArray(months) ||
+    compareSeriesByMonths.length !== targetNormalizedSeries.length ||
+    compareSeriesByMonths.length !== months.length
+  ) {
+    return null;
+  }
+
+  const canUseAnchorIndex = (index) => (
+    Number.isInteger(index) &&
+    index >= 0 &&
+    index < compareSeriesByMonths.length &&
+    isFiniteNumber(compareSeriesByMonths[index]) &&
+    compareSeriesByMonths[index] > 0 &&
+    isFiniteNumber(targetNormalizedSeries[index])
+  );
+
+  let anchorIndex = findMonthIndexByToken(months, preferredAnchorMonth);
+  if (!canUseAnchorIndex(anchorIndex)) {
+    anchorIndex = -1;
+    for (let i = 0; i < compareSeriesByMonths.length; i += 1) {
+      if (canUseAnchorIndex(i)) {
+        anchorIndex = i;
+        break;
+      }
+    }
+  }
+
+  if (!canUseAnchorIndex(anchorIndex)) return null;
+
+  const compareAnchorRaw = compareSeriesByMonths[anchorIndex];
+  const targetAnchorValue = targetNormalizedSeries[anchorIndex];
+  if (!isFiniteNumber(compareAnchorRaw) || compareAnchorRaw <= 0 || !isFiniteNumber(targetAnchorValue)) {
+    return null;
+  }
+
+  const normalized = compareSeriesByMonths.map((value) => {
+    if (!isFiniteNumber(value)) return null;
+    return (value / compareAnchorRaw) * targetAnchorValue;
+  });
+
+  return {
+    normalized,
+    anchorIndex,
+    anchorMonth: months[anchorIndex],
+    targetAnchorValue,
+    compareAnchorRaw,
+  };
 }
 
 function resolveCompareContext(selectedCityIds) {
@@ -3591,7 +3974,12 @@ function render() {
 
   const activeSourceLegend = activeSourceMeta?.legendLabel || activeSourceMeta?.label || "当前源";
   const compareSourceLegend = compareContext?.source?.legendLabel || compareContext?.source?.label || "对比源";
+  const selectedCityNames = selectedCityIds
+    .map((cityId) => cityById.get(cityId)?.name)
+    .filter((name) => Boolean(name));
+  const selectedCityColorMap = buildSelectedCityColorMap(selectedCityNames, getCurrentThemeMode());
   let compareSeriesRendered = false;
+  let compareAnchorInfo = null;
 
   function appendSeries({
     city,
@@ -3608,16 +3996,28 @@ function render() {
     lineWidthScale = 1,
     lineOpacity = 1,
     allowAnnotations = true,
+    normalizedSeries = null,
+    summaryBaseRaw = null,
   }) {
-    const baseRaw = seriesRaw[viewportStartOffset];
-    if (!isFiniteNumber(baseRaw) || baseRaw <= 0) {
-      missingBase.push(displayName);
-      return false;
+    let baseRaw = seriesRaw[viewportStartOffset];
+    let normalized = null;
+    if (Array.isArray(normalizedSeries) && normalizedSeries.length === seriesRaw.length) {
+      normalized = normalizedSeries.map((value) => (isFiniteNumber(value) ? value : null));
+      if (isFiniteNumber(summaryBaseRaw)) {
+        baseRaw = summaryBaseRaw;
+      } else if (!isFiniteNumber(baseRaw) || baseRaw <= 0) {
+        baseRaw = null;
+      }
+    } else {
+      if (!isFiniteNumber(baseRaw) || baseRaw <= 0) {
+        missingBase.push(displayName);
+        return false;
+      }
+      normalized = seriesRaw.map((value) => {
+        if (!isFiniteNumber(value)) return null;
+        return (value / baseRaw) * 100;
+      });
     }
-    const normalized = seriesRaw.map((value) => {
-      if (!isFiniteNumber(value)) return null;
-      return (value / baseRaw) * 100;
-    });
     const viewportNormalized = normalized.slice(viewportStartOffset, viewportEndOffset + 1);
 
     const validValues = viewportNormalized.filter(isFiniteNumber);
@@ -3654,7 +4054,7 @@ function render() {
       drawdownEligibleCount += 1;
     }
 
-    const lineColor = getColor(city.name, colorIndex);
+    const lineColor = getColor(city.name, colorIndex, selectedCityColorMap);
     rendered.push({
       id: city.id,
       name: displayName,
@@ -3738,9 +4138,32 @@ function render() {
   if (compareContext) {
     const compareSeries = compareContext.source?.data?.values?.[compareContext.city.id];
     if (Array.isArray(compareSeries)) {
+      const compareSeriesByMonths = alignSeriesByMonths(compareContext.source.data, compareSeries, months);
+      let normalizedCompareSeries = null;
+      const compareStartRaw = compareSeriesByMonths[viewportStartOffset];
+
+      if (!isFiniteNumber(compareStartRaw) || compareStartRaw <= 0) {
+        const activeSeriesRendered = rendered.find((item) => item.id === selectedCityIds[0]);
+        if (activeSeriesRendered && Array.isArray(activeSeriesRendered.normalized)) {
+          const anchored = buildAnchoredCompareSeries(
+            compareSeriesByMonths,
+            activeSeriesRendered.normalized,
+            months,
+            "2008-01",
+          );
+          if (anchored) {
+            normalizedCompareSeries = anchored.normalized;
+            compareAnchorInfo = {
+              month: anchored.anchorMonth,
+              value: anchored.targetAnchorValue,
+            };
+          }
+        }
+      }
+
       compareSeriesRendered = appendSeries({
         city: compareContext.city,
-        seriesRaw: alignSeriesByMonths(compareContext.source.data, compareSeries, months),
+        seriesRaw: compareSeriesByMonths,
         sourceKey: compareContext.source.key,
         sourceLabel: compareSourceLegend,
         displayName: `${compareContext.cityName}（${compareSourceLegend}）`,
@@ -3753,6 +4176,7 @@ function render() {
         lineWidthScale: 0.94,
         lineOpacity: 0.96,
         allowAnnotations: true,
+        normalizedSeries: normalizedCompareSeries,
       });
     }
   }
@@ -3807,7 +4231,11 @@ function render() {
     compareContext && compareSeriesRendered
       ? ` | 对比 ${compareContext.cityName}（${activeSourceLegend} vs ${compareSourceLegend}）`
       : "";
-  chartMetaEl.textContent = `${formatMonthZh(viewportStartMonth)} - ${formatMonthZh(viewportEndMonth)} | 定基 ${formatMonthZh(viewportStartMonth)} = 100 | ${sourceLabelShort}${compareMetaText}`;
+  const compareAnchorMetaText =
+    compareContext && compareSeriesRendered && compareAnchorInfo?.month
+      ? `（对比源按 ${compareAnchorInfo.month} 与${activeSourceLegend}对齐）`
+      : "";
+  chartMetaEl.textContent = `${formatMonthZh(viewportStartMonth)} - ${formatMonthZh(viewportEndMonth)} | 定基 ${formatMonthZh(viewportStartMonth)} = 100 | ${sourceLabelShort}${compareMetaText}${compareAnchorMetaText}`;
 
   renderSummaryTable(visibleSummaryRows);
   renderChartStatsOverlay(visibleSummaryRows, viewportStartMonth, viewportEndMonth);
@@ -3826,16 +4254,24 @@ function render() {
     compareContext && compareSeriesRendered
       ? `已开启 ${compareContext.cityName} 跨源对比（${activeSourceLegend} vs ${compareSourceLegend}）。`
       : "";
+  const compareAnchorText =
+    compareContext && compareSeriesRendered && compareAnchorInfo?.month
+      ? `对比源在 ${compareAnchorInfo.month} 与${activeSourceLegend}对齐后再展开。`
+      : "";
   const sourceLabel = activeSourceMeta?.sourceTitle || "中原领先指数（月度）";
-  footnoteEl.textContent = `数据源：${sourceLabel}。${modeText}${compareText}当前滑块区间：${viewportStartMonth} ~ ${viewportEndMonth}。${analysisText}${missingText}${noDataText}`;
+  footnoteEl.textContent = `数据源：${sourceLabel}。${modeText}${compareText}${compareAnchorText}当前滑块区间：${viewportStartMonth} ~ ${viewportEndMonth}。${analysisText}${missingText}${noDataText}`;
 
   const compareStatusText =
     compareContext && compareSeriesRendered
       ? `，并已对比 ${compareContext.cityName}（${activeSourceLegend} vs ${compareSourceLegend}）`
       : "";
+  const compareAnchorStatusText =
+    compareContext && compareSeriesRendered && compareAnchorInfo?.month
+      ? `，对比源按 ${compareAnchorInfo.month} 与${activeSourceLegend}对齐`
+      : "";
   const statusMessage = wasAutoAdjusted
-    ? `你选择的区间超出有效数据范围，已自动调整为 ${startMonth} ~ ${endMonth}；当前滑块区间 ${viewportStartMonth} ~ ${viewportEndMonth}（定基 ${viewportStartMonth}=100）${compareStatusText}。`
-    : `已生成 ${rendered.length} 条走势（当前滑块区间 ${viewportStartMonth} ~ ${viewportEndMonth}，定基 ${viewportStartMonth}=100）${compareStatusText}。`;
+    ? `你选择的区间超出有效数据范围，已自动调整为 ${startMonth} ~ ${endMonth}；当前滑块区间 ${viewportStartMonth} ~ ${viewportEndMonth}（定基 ${viewportStartMonth}=100）${compareStatusText}${compareAnchorStatusText}。`
+    : `已生成 ${rendered.length} 条走势（当前滑块区间 ${viewportStartMonth} ~ ${viewportEndMonth}，定基 ${viewportStartMonth}=100）${compareStatusText}${compareAnchorStatusText}。`;
   setStatus(statusMessage, false);
 }
 
@@ -3911,6 +4347,15 @@ function bindEvents() {
     });
     timeZoomEndEl.addEventListener("change", () => {
       applyTimeZoomFromInputs("end");
+    });
+  }
+
+  if (citySearchInputEl) {
+    citySearchInputEl.addEventListener("input", () => {
+      applyCitySearchFilter();
+    });
+    citySearchInputEl.addEventListener("search", () => {
+      applyCitySearchFilter();
     });
   }
 

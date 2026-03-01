@@ -7,8 +7,8 @@ import { fileURLToPath } from "node:url";
 const API_URL = "https://data.stats.gov.cn/easyquery.htm";
 const DB_CODE = "csyd";
 const INDICATOR_ID = "A010807";
-const DEFAULT_OUTPUT_MIN_MONTH = "2008-01";
-const DEFAULT_OUTPUT_BASE_MONTH = "2008-01";
+const DEFAULT_OUTPUT_MIN_MONTH = "2006-01";
+const DEFAULT_OUTPUT_BASE_MONTH = "2006-01";
 const REQUEST_TIMEOUT_MS = 20000;
 const MAX_RETRIES = 5;
 

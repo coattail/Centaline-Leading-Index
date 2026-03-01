@@ -10,12 +10,12 @@
       href="https://fonts.googleapis.com/css2?family=Marcellus&family=Noto+Sans+SC:wght@400;500;700&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="style.css?v=20260223-timezoom-external3" />
+    <link rel="stylesheet" href="style.css?v=20260301-city-search1" />
     <script defer src="https://cdn.jsdelivr.net/npm/echarts@5.5.1/dist/echarts.min.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
     <script defer src="house-price-data.js"></script>
     <script defer src="house-price-data-nbs-70.js"></script>
-    <script defer src="app.js?v=20260223-timezoom-external4"></script>
+    <script defer src="app.js?v=20260301-compare-anchor1"></script>
   </head>
   <body>
     <main class="page">
@@ -54,6 +54,17 @@
                 <button id="selectAllBtn" type="button">全选</button>
                 <button id="clearAllBtn" type="button">清空</button>
               </div>
+            </div>
+            <div id="citySearchWrap" class="city-search-wrap is-hidden">
+              <input
+                id="citySearchInput"
+                class="asset-search city-search-input"
+                type="search"
+                placeholder="搜索城市或省份（如 杭州 / 广东）"
+                aria-label="搜索城市或省份"
+                autocomplete="off"
+              />
+              <p id="citySearchHint" class="analysis-hint city-search-hint"></p>
             </div>
             <div id="cityList" class="city-list" aria-label="城市选择"></div>
           </div>
