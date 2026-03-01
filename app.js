@@ -4193,7 +4193,7 @@ function render() {
   uiState.hiddenCityNames = new Set(
     [...uiState.hiddenCityNames].filter((name) => renderedNameSet.has(name)),
   );
-  const visibleSummaryRows = summaryRows.filter((row) => !uiState.hiddenCityNames.has(row.name));
+  const visibleSummaryRows = summaryRows;
   latestRenderContext = {
     startMonth: viewportStartMonth,
     endMonth: viewportEndMonth,
@@ -4316,8 +4316,13 @@ function bindEvents() {
 
   chart.on("click", (params) => {
     if (params?.componentType === "series" && params?.seriesName) {
-      toggleCityVisibility(params.seriesName);
-      render();
+      const cityName = params.seriesName;
+      const nextHidden = !uiState.hiddenCityNames.has(cityName);
+      toggleCityVisibility(cityName);
+      chart.dispatchAction({
+        type: nextHidden ? "legendUnSelect" : "legendSelect",
+        name: cityName,
+      });
       return;
     }
   });
@@ -4329,7 +4334,6 @@ function bindEvents() {
       if (!selected) hidden.add(name);
     }
     uiState.hiddenCityNames = hidden;
-    render();
   });
 
   if (timeZoomStartEl && timeZoomEndEl) {
