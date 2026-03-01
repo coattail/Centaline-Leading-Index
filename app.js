@@ -55,6 +55,8 @@ const sourceSubtitleEl = document.getElementById("sourceSubtitleText");
 const THEME_MODE_STORAGE_KEY = "house-price-theme-mode";
 const THEME_MODE_LIGHT = "light";
 const THEME_MODE_DARK = "dark";
+const PROJECT_CHART_FONT_FAMILY = "ProjectSTKaiti";
+const FONT_LOAD_WAIT_TIMEOUT_MS = 2600;
 
 const chart = echarts.init(chartEl, null, {
   renderer: "canvas",
@@ -113,7 +115,7 @@ const OVERLAY_CITY_ORDER = ["北京", "上海", "广州", "深圳", "天津", "�
 const OVERLAY_CITY_ORDER_INDEX = new Map(
   OVERLAY_CITY_ORDER.map((name, index) => [name, index]),
 );
-const CHART_FONT_FAMILY = '"STKaiti", "Kaiti SC", "KaiTi", "BiauKai", serif';
+const CHART_FONT_FAMILY = '"ProjectSTKaiti", "STKaiti", "Kaiti SC", "KaiTi", "BiauKai", serif';
 const CHART_LAYOUT_BASE_WIDTH = 1160;
 const CHART_LAYOUT_ASPECT_RATIO = 0.78;
 const CHART_LAYOUT_MIN_HEIGHT = 420;
@@ -520,6 +522,24 @@ function applyThemeMode(nextMode, { persist = true, rerender = true } = {}) {
   }
   if (rerender && raw) {
     render();
+  }
+}
+
+async function waitForProjectChartFont() {
+  if (!document?.fonts || typeof document.fonts.load !== "function") return;
+  const loadPromise = Promise.allSettled([
+    document.fonts.load(`400 14px "${PROJECT_CHART_FONT_FAMILY}"`),
+    document.fonts.load(`700 18px "${PROJECT_CHART_FONT_FAMILY}"`),
+  ]);
+  const timeoutPromise = new Promise((resolve) => {
+    window.setTimeout(resolve, FONT_LOAD_WAIT_TIMEOUT_MS);
+  });
+  await Promise.race([loadPromise, timeoutPromise]);
+  if (!document.fonts.check(`14px "${PROJECT_CHART_FONT_FAMILY}"`)) {
+    // eslint-disable-next-line no-console
+    console.warn(
+      `Font "${PROJECT_CHART_FONT_FAMILY}" is not available. Add fonts/STKaiti.woff2 and fonts/STKaiti.woff to lock typography.`,
+    );
   }
 }
 
@@ -4412,7 +4432,7 @@ function bindEvents() {
   });
 }
 
-function init() {
+async function init() {
   const availableSources = listAvailableSources();
   if (availableSources.length === 0) {
     setStatus("数据加载失败，请先生成 house-price-data.js / house-price-data-nbs-70.js。", true);
@@ -4430,6 +4450,7 @@ function init() {
     return;
   }
 
+  await waitForProjectChartFont();
   bindEvents();
   bindChartWheelToPageScroll();
   render();
