@@ -886,7 +886,11 @@ body.theme-dark .timeline-zoom-input::-moz-range-thumb {
 .chart-stats-overlay {
   --stats-cell-pad-y: 2px;
   --stats-cell-pad-x: 5.3px;
-  --overlay-pseudo-bold-offset: 0.18px;
+  --overlay-pseudo-bold-offset: 0.22px;
+  --overlay-stroke-width: 0.28px;
+  --overlay-stroke-title: 0.56px;
+  --overlay-stroke-header: 0.42px;
+  --overlay-stroke-city: 0.4px;
   --overlay-emphasis-scale: 1.05;
   position: absolute;
   top: 38px;
@@ -903,6 +907,9 @@ body.theme-dark .timeline-zoom-input::-moz-range-thumb {
   pointer-events: none;
   display: none;
   font-synthesis: none;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: geometricPrecision;
 }
 
 .chart-stats-overlay.show {
@@ -953,9 +960,8 @@ body.theme-dark .timeline-zoom-input::-moz-range-thumb {
   position: relative;
   display: inline-block;
   font-size: calc(1em * var(--overlay-emphasis-scale));
-  text-shadow:
-    var(--overlay-pseudo-bold-offset) 0 0 currentColor,
-    calc(var(--overlay-pseudo-bold-offset) * -1) 0 0 currentColor;
+  font-weight: 700;
+  text-shadow: none;
 }
 
 .chart-stats-overlay th {
@@ -980,9 +986,7 @@ body.theme-dark .timeline-zoom-input::-moz-range-thumb {
   height: calc(1.2em + (var(--stats-cell-pad-y) * 2));
   line-height: 1;
   transform: translateY(-0.045em);
-  text-shadow:
-    var(--overlay-pseudo-bold-offset) 0 0 currentColor,
-    calc(var(--overlay-pseudo-bold-offset) * -1) 0 0 currentColor;
+  text-shadow: none;
 }
 
 .chart-stats-title-main {
@@ -992,9 +996,45 @@ body.theme-dark .timeline-zoom-input::-moz-range-thumb {
   font-weight: 700;
   color: #22282d;
   text-align: center;
-  text-shadow:
-    var(--overlay-pseudo-bold-offset) 0 0 currentColor,
-    calc(var(--overlay-pseudo-bold-offset) * -1) 0 0 currentColor;
+  text-shadow: none;
+}
+
+.chart-stats-title-main,
+.chart-stats-th-text,
+.chart-stats-city-main {
+  paint-order: stroke fill;
+}
+
+.chart-stats-title-main {
+  -webkit-text-stroke: var(--overlay-stroke-title) currentColor;
+}
+
+.chart-stats-th-text {
+  -webkit-text-stroke: var(--overlay-stroke-header) currentColor;
+}
+
+.chart-stats-city-main {
+  -webkit-text-stroke: var(--overlay-stroke-city) currentColor;
+}
+
+@supports not (-webkit-text-stroke: 0.2px currentColor) {
+  .chart-stats-title-main {
+    text-shadow:
+      calc(var(--overlay-pseudo-bold-offset) * 2.4) 0 0 currentColor,
+      calc(var(--overlay-pseudo-bold-offset) * -2.4) 0 0 currentColor;
+  }
+
+  .chart-stats-th-text {
+    text-shadow:
+      calc(var(--overlay-pseudo-bold-offset) * 2) 0 0 currentColor,
+      calc(var(--overlay-pseudo-bold-offset) * -2) 0 0 currentColor;
+  }
+
+  .chart-stats-city-main {
+    text-shadow:
+      calc(var(--overlay-pseudo-bold-offset) * 1.9) 0 0 currentColor,
+      calc(var(--overlay-pseudo-bold-offset) * -1.9) 0 0 currentColor;
+  }
 }
 
 .chart-stats-overlay.is-cross-source .chart-stats-title-main,

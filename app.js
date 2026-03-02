@@ -1246,11 +1246,12 @@ function syncChartViewport({ resizeChart = true } = {}) {
   );
   chartEl.style.height = `${chartHeight}px`;
 
-  const overlayScale = clampNumber(
+  const overlayScaleRaw = clampNumber(
     chartWidth / CHART_LAYOUT_BASE_WIDTH,
     layout.overlayScaleMin,
     layout.overlayScaleMax,
   );
+  const overlayScale = Math.round(overlayScaleRaw * 100) / 100;
   const preferredLeft = Math.round(chartWidth * layout.overlayLeftRatio);
   const preferredTop = Math.round(chartHeight * layout.overlayTopRatio);
   chartStatsOverlayEl.style.transform = `scale(${overlayScale})`;
@@ -2401,16 +2402,24 @@ async function captureChartStageSnapshot(pixelRatio = 2) {
 
 function getOverlayPseudoBoldOffset(fontSizePx) {
   const safeSize = Number.isFinite(fontSizePx) ? fontSizePx : 12;
-  return Math.max(0.12, safeSize * 0.012);
+  return Math.max(0.45, safeSize * 0.032);
 }
 
-function fillTextWithPseudoBold(ctx, text, x, y, fontSizePx, enabled = true) {
+function fillTextWithPseudoBold(ctx, text, x, y, fontSizePx, enabled = true, factor = 1) {
   const value = String(text ?? "");
+  if (!enabled || !value) {
+    ctx.fillText(value, x, y);
+    return;
+  }
+  const safeFactor = Number.isFinite(Number(factor)) ? Math.max(1, Number(factor)) : 1;
+  ctx.save();
+  ctx.lineJoin = "round";
+  ctx.miterLimit = 2;
+  ctx.lineWidth = getOverlayPseudoBoldOffset(fontSizePx) * safeFactor;
+  ctx.strokeStyle = ctx.fillStyle;
+  ctx.strokeText(value, x, y);
+  ctx.restore();
   ctx.fillText(value, x, y);
-  if (!enabled || !value) return;
-  const offset = getOverlayPseudoBoldOffset(fontSizePx);
-  ctx.fillText(value, x + offset, y);
-  ctx.fillText(value, x - offset, y);
 }
 
 function drawOverlaySummaryOnCanvas(ctx, canvasWidth, canvasHeight, exportContext) {
@@ -2466,6 +2475,9 @@ function drawOverlaySummaryOnCanvas(ctx, canvasWidth, canvasHeight, exportContex
   const cellFontSize = Math.max(12, Math.round(13 * scaleY * OVERLAY_TABLE_SCALE));
   const headerFontSize = Math.max(12, Math.round(cellFontSize * OVERLAY_EMPHASIS_SCALE));
   const cityFontSize = Math.max(12, Math.round(cellFontSize * OVERLAY_EMPHASIS_SCALE));
+  const titleBoldFactor = 2.4;
+  const headerBoldFactor = 2;
+  const cityBoldFactor = 1.9;
   const noteFontSize = Math.max(10, Math.round(12 * scaleY));
   const titleColor = chartTheme.overlayTitleColor;
   const lineColor = chartTheme.overlayLineColor;
@@ -2476,7 +2488,15 @@ function drawOverlaySummaryOnCanvas(ctx, canvasWidth, canvasHeight, exportContex
   ctx.textBaseline = "top";
 
   ctx.font = `700 ${mainFontSize}px ${fontFamily}`;
-  fillTextWithPseudoBold(ctx, "二手住宅价格指数：热点城市", centerX, cursorY, mainFontSize, true);
+  fillTextWithPseudoBold(
+    ctx,
+    "二手住宅价格指数：热点城市",
+    centerX,
+    cursorY,
+    mainFontSize,
+    true,
+    titleBoldFactor,
+  );
   cursorY += Math.round(mainFontSize * 1.24);
 
   ctx.font = `400 ${subFontSize}px ${fontFamily}`;
@@ -2539,7 +2559,7 @@ function drawOverlaySummaryOnCanvas(ctx, canvasWidth, canvasHeight, exportContex
   const headerTextY = topY + headerHeight / 2 - Math.max(0.5, headerFontSize * 0.05);
   for (let i = 0; i < header.length; i += 1) {
     const midX = runningX + colWidths[i] / 2;
-    fillTextWithPseudoBold(ctx, header[i], midX, headerTextY, headerFontSize, true);
+    fillTextWithPseudoBold(ctx, header[i], midX, headerTextY, headerFontSize, true, headerBoldFactor);
     runningX += colWidths[i];
   }
   ctx.textBaseline = "top";
@@ -2572,7 +2592,7 @@ function drawOverlaySummaryOnCanvas(ctx, canvasWidth, canvasHeight, exportContex
         ctx.font = mainFont;
         const mainWidth = ctx.measureText(mainText).width;
         ctx.fillStyle = chartTheme.overlayTextColor;
-        fillTextWithPseudoBold(ctx, mainText, midX, rowTextY, cityFontSize, true);
+        fillTextWithPseudoBold(ctx, mainText, midX, rowTextY, cityFontSize, true, cityBoldFactor);
 
         ctx.textAlign = "left";
         ctx.font = subFont;
@@ -2587,7 +2607,15 @@ function drawOverlaySummaryOnCanvas(ctx, canvasWidth, canvasHeight, exportContex
         ctx.font = mainFont;
       } else {
         ctx.font = `400 ${currentFontSize}px ${fontFamily}`;
-        fillTextWithPseudoBold(ctx, String(cells[i]), midX, rowTextY, currentFontSize, i === 0);
+        fillTextWithPseudoBold(
+          ctx,
+          String(cells[i]),
+          midX,
+          rowTextY,
+          currentFontSize,
+          i === 0,
+          i === 0 ? cityBoldFactor : 1,
+        );
       }
       colStartX += colWidths[i];
     }
