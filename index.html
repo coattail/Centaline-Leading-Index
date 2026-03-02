@@ -31,6 +31,15 @@
         <h1>房价可视化</h1>
         <p class="subtitle" id="sourceSubtitleText">数据来源：Wind、中原研究中心</p>
         <p class="subtitle credit">数据整合与图表制作：公众号 - 一座独立屋</p>
+        <div class="hero-theme-float">
+          <span class="hero-theme-caption">页面风格</span>
+          <span class="hero-theme-select-wrap">
+            <select id="themeMode" class="hero-theme-select" aria-label="页面风格选择">
+              <option value="light">浅色</option>
+              <option value="dark">深色</option>
+            </select>
+          </span>
+        </div>
       </section>
 
       <section class="workspace">
@@ -41,16 +50,6 @@
             <h3>数据源</h3>
             <label>
               <select id="dataSource" aria-label="数据源选择"></select>
-            </label>
-          </div>
-
-          <div class="control-block control-block--loose-select">
-            <h3>页面风格</h3>
-            <label>
-              <select id="themeMode" aria-label="页面风格选择">
-                <option value="light">浅色</option>
-                <option value="dark">深色</option>
-              </select>
             </label>
           </div>
 
@@ -67,7 +66,7 @@
                 id="citySearchInput"
                 class="asset-search city-search-input"
                 type="search"
-                placeholder="搜索城市；省份需全称（如 江西 / 广西）"
+                placeholder="搜索城市或省份"
                 aria-label="搜索城市或省份"
                 autocomplete="off"
               />
@@ -76,14 +75,14 @@
             <div id="cityList" class="city-list" aria-label="城市选择"></div>
           </div>
 
-          <div class="control-block">
+          <div class="control-block control-block--time-compact">
             <h3>时间区间</h3>
-            <div class="date-grid">
-              <label>
+            <div class="date-grid date-grid--compact">
+              <label class="date-field-compact">
                 起点
                 <select id="startMonth"></select>
               </label>
-              <label>
+              <label class="date-field-compact">
                 终点
                 <select id="endMonth"></select>
               </label>

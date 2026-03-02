@@ -129,6 +129,14 @@ body.theme-dark .hero-link-btn:hover {
   color: #f8c47c;
 }
 
+body.theme-dark .hero-theme-caption {
+  color: #d6e2ec;
+}
+
+body.theme-dark .hero-theme-select-wrap::after {
+  border-color: #c9d9e7;
+}
+
 body.theme-dark select {
   background: linear-gradient(180deg, #142433, #101d28);
   border-color: rgba(96, 123, 143, 0.78);
@@ -294,6 +302,65 @@ body.theme-dark .city-list::-webkit-scrollbar-thumb {
 
 .subtitle.credit {
   margin-top: 2px;
+}
+
+.hero-theme-float {
+  position: absolute;
+  right: 50px;
+  bottom: 22px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  z-index: 1;
+}
+
+.hero-theme-caption {
+  margin: 0;
+  font-size: 0.86rem;
+  line-height: 1;
+  letter-spacing: 0.01em;
+  color: #3b6280;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.hero-theme-select-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.hero-theme-select-wrap::after {
+  content: "";
+  position: absolute;
+  right: 13px;
+  top: 50%;
+  width: 8px;
+  height: 8px;
+  border-right: 2px solid #2f5f84;
+  border-bottom: 2px solid #2f5f84;
+  transform: translateY(-58%) rotate(45deg);
+  pointer-events: none;
+}
+
+.hero-theme-select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  width: 108px;
+  min-height: 36px;
+  padding: 4px 30px;
+  border-radius: 999px;
+  font-size: 1.02rem;
+  font-weight: 700;
+  text-align: center;
+  text-align-last: center;
+  -moz-text-align-last: center;
+  line-height: 1;
+}
+
+.hero-theme-select::-ms-expand {
+  display: none;
 }
 
 .hero-links {
@@ -590,6 +657,31 @@ button:hover {
   margin-top: 10px;
   display: grid;
   gap: 10px;
+}
+
+.control-block--time-compact {
+  padding: 9px 10px;
+}
+
+.control-block--time-compact h3 {
+  font-size: 0.9rem;
+}
+
+.date-grid--compact {
+  margin-top: 7px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 7px;
+}
+
+.date-field-compact {
+  gap: 3px;
+  font-size: 0.76rem;
+}
+
+.date-field-compact select {
+  min-height: 34px;
+  padding: 6px 8px;
+  font-size: 0.82rem;
 }
 
 label {
@@ -1259,6 +1351,32 @@ thead th {
     border-radius: 16px;
   }
 
+  .hero-theme-float {
+    position: static;
+    right: auto;
+    bottom: auto;
+    width: auto;
+    gap: 8px;
+    margin-top: 10px;
+  }
+
+  .hero-theme-caption {
+    font-size: 0.76rem;
+  }
+
+  .hero-theme-select-wrap::after {
+    right: 12px;
+    width: 7px;
+    height: 7px;
+  }
+
+  .hero-theme-select {
+    width: 108px;
+    min-height: 34px;
+    padding: 4px 28px;
+    font-size: 0.9rem;
+  }
+
   .controls,
   .chart-zone {
     border-radius: 16px;
@@ -1300,6 +1418,16 @@ thead th {
     gap: 9px;
   }
 
+  .date-grid--compact {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 6px;
+  }
+
+  .date-field-compact {
+    font-size: 0.72rem;
+    gap: 3px;
+  }
+
   .asset-list {
     max-height: 240px;
   }
@@ -1314,6 +1442,12 @@ thead th {
   .analysis-btn,
   .primary-btn {
     min-height: 42px;
+  }
+
+  .date-field-compact select {
+    min-height: 34px;
+    padding: 5px 7px;
+    font-size: 0.78rem;
   }
 
   .analysis-btn {
@@ -1423,6 +1557,28 @@ thead th {
     border-radius: 14px;
   }
 
+  .hero-theme-float {
+    gap: 7px;
+    margin-top: 8px;
+  }
+
+  .hero-theme-caption {
+    font-size: 0.7rem;
+  }
+
+  .hero-theme-select-wrap::after {
+    right: 11px;
+    width: 6px;
+    height: 6px;
+  }
+
+  .hero-theme-select {
+    width: 102px;
+    min-height: 32px;
+    padding: 3px 26px;
+    font-size: 0.84rem;
+  }
+
   .eyebrow {
     font-size: 0.72rem;
     letter-spacing: 0.08em;
@@ -1449,6 +1605,24 @@ thead th {
 
   .city-list {
     max-height: 170px;
+  }
+
+  .control-block--time-compact {
+    padding: 8px 9px;
+  }
+
+  .date-grid--compact {
+    gap: 5px;
+  }
+
+  .date-field-compact {
+    font-size: 0.7rem;
+  }
+
+  .date-field-compact select {
+    min-height: 32px;
+    padding: 5px 6px;
+    font-size: 0.76rem;
   }
 
   .asset-list {
