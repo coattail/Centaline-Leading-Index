@@ -185,6 +185,18 @@ node scripts/fetch-nbs-70city-secondhand.mjs
 - `house-price-data-nbs-70.js`
 - `house-price-data-nbs-70.json`
 
+### 7.4 统计局 70 城一致性核查（只审计，不改值）
+
+```bash
+node scripts/audit-nbs-70city-secondhand.mjs house-price-data-nbs-70.json /tmp/nbs-audit-report.json
+```
+
+说明：
+
+- 逐年回查国家统计局接口（`A010807`），核对本地链式序列是否与源值一致
+- 输出长直线区间、单月大幅波动、源端 `0` 占位值、缺失值补位点
+- `mismatchCount > 0` 时脚本会返回非零退出码，便于 CI/巡检告警
+
 ---
 
 ## 8. 统计局自动月更（GitHub Actions）

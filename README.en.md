@@ -186,6 +186,18 @@ Outputs:
 - `house-price-data-nbs-70.js`
 - `house-price-data-nbs-70.json`
 
+### 7.4 NBS 70-city Consistency Audit (Audit-only, No Data Mutation)
+
+```bash
+node scripts/audit-nbs-70city-secondhand.mjs house-price-data-nbs-70.json /tmp/nbs-audit-report.json
+```
+
+What it does:
+
+- Refetches yearly NBS `A010807` records and verifies local chained values against source data
+- Reports long flat segments, sharp monthly moves, source-side zero placeholders, and missing-value carry-forwards
+- Exits with non-zero code when `mismatchCount > 0`, which is useful for CI monitoring
+
 ---
 
 ## 8. Automatic Monthly NBS Updates (GitHub Actions)

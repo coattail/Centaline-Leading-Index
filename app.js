@@ -659,24 +659,32 @@ function getProvinceAliasesByCode(provinceCode) {
 }
 
 function buildCitySearchTokens(city) {
-  const tokenSet = new Set();
-  const pushToken = (value) => {
+  const cityTokenSet = new Set();
+  const provinceTokenSet = new Set();
+  const pushCityToken = (value) => {
     const token = normalizeCitySearchKeyword(value);
-    if (token) tokenSet.add(token);
+    if (token) cityTokenSet.add(token);
+  };
+  const pushProvinceToken = (value) => {
+    const token = normalizeCitySearchKeyword(value);
+    if (token) provinceTokenSet.add(token);
   };
 
   const cityName = String(city?.name || "").trim();
-  pushToken(cityName);
+  pushCityToken(cityName);
   if (cityName.endsWith("市")) {
-    pushToken(cityName.slice(0, -1));
+    pushCityToken(cityName.slice(0, -1));
   }
 
   const regCode = getCityRegCode(city);
   const provinceCode = regCode.slice(0, 2);
   const provinceAliases = getProvinceAliasesByCode(provinceCode);
-  provinceAliases.forEach(pushToken);
+  provinceAliases.forEach(pushProvinceToken);
 
-  return [...tokenSet];
+  return {
+    cityTokens: [...cityTokenSet],
+    provinceTokens: [...provinceTokenSet],
+  };
 }
 
 function applyCitySearchFilter() {
@@ -688,10 +696,15 @@ function applyCitySearchFilter() {
   let visibleCount = 0;
 
   labels.forEach((label) => {
-    const tokens = String(label.dataset.searchTokens || "")
+    const cityTokens = String(label.dataset.citySearchTokens || label.dataset.searchTokens || "")
       .split("|")
       .filter((token) => Boolean(token));
-    const matched = !keyword || tokens.some((token) => token.includes(keyword));
+    const provinceTokens = String(label.dataset.provinceSearchTokens || "")
+      .split("|")
+      .filter((token) => Boolean(token));
+    const cityMatched = cityTokens.some((token) => token.includes(keyword));
+    const provinceMatched = provinceTokens.includes(keyword);
+    const matched = !keyword || cityMatched || provinceMatched;
     label.classList.toggle("city-item-hidden", !matched);
     if (matched) visibleCount += 1;
   });
@@ -700,7 +713,7 @@ function applyCitySearchFilter() {
     if (!isNbsSource) {
       citySearchHintEl.textContent = "";
     } else if (!keyword) {
-      citySearchHintEl.textContent = `可搜索城市或省份（如 杭州、广东），当前 ${totalCount} 个城市。`;
+      citySearchHintEl.textContent = `可搜索城市名；按省份筛选需输入省份全称（如 江西、广西），当前 ${totalCount} 个城市。`;
     } else if (visibleCount === 0) {
       citySearchHintEl.textContent = `未找到“${String(keywordRaw || "").trim()}”相关城市，可试试省份名。`;
     } else {
@@ -727,6 +740,17 @@ function syncCitySearchUiForSource(isNbsSource) {
       citySearchHintEl.textContent = "";
     }
   }
+}
+
+function collectCityCheckboxInputs({ visibleOnly = false } = {}) {
+  const allInputs = [...cityListEl.querySelectorAll('input[type="checkbox"]')].filter(
+    (input) => input instanceof HTMLInputElement,
+  );
+  if (!visibleOnly) return allInputs;
+  return allInputs.filter((input) => {
+    const label = input.closest(".city-item");
+    return !(label instanceof HTMLElement && label.classList.contains("city-item-hidden"));
+  });
 }
 
 function buildSourceSubtitle(source) {
@@ -1399,8 +1423,12 @@ function buildCityControls(cities, defaultSelectedNames = null) {
     const label = document.createElement("label");
     label.className = "city-item";
     const searchTokens = buildCitySearchTokens(city);
-    if (searchTokens.length > 0) {
-      label.dataset.searchTokens = searchTokens.join("|");
+    if (searchTokens.cityTokens.length > 0) {
+      label.dataset.citySearchTokens = searchTokens.cityTokens.join("|");
+      label.dataset.searchTokens = searchTokens.cityTokens.join("|");
+    }
+    if (searchTokens.provinceTokens.length > 0) {
+      label.dataset.provinceSearchTokens = searchTokens.provinceTokens.join("|");
     }
     const input = document.createElement("input");
     input.type = "checkbox";
@@ -4478,18 +4506,30 @@ function bindEvents() {
   });
 
   selectAllBtn.addEventListener("click", () => {
-    let selectedCount = 0;
-    cityListEl.querySelectorAll('input[type="checkbox"]').forEach((el) => {
-      if (selectedCount < MAX_SELECTED_CITY_COUNT) {
-        el.checked = true;
-        selectedCount += 1;
-      } else {
-        el.checked = false;
-      }
+    const allInputs = collectCityCheckboxInputs();
+    const visibleInputs = collectCityCheckboxInputs({ visibleOnly: true });
+    const hasActiveSearch = Boolean(citySearchInputEl && String(citySearchInputEl.value || "").trim());
+    const targetInputs = visibleInputs.length > 0 ? visibleInputs : allInputs;
+    const selectedCount = Math.min(MAX_SELECTED_CITY_COUNT, targetInputs.length);
+
+    allInputs.forEach((input) => {
+      input.checked = false;
     });
+    for (let i = 0; i < selectedCount; i += 1) {
+      targetInputs[i].checked = true;
+    }
+
     syncCitySelectionCapacityUi();
     refreshCompareSourceControl({ keepSelection: true });
-    setStatus(`已选择前 ${MAX_SELECTED_CITY_COUNT} 个城市。`, false);
+    if (selectedCount === 0 && hasActiveSearch) {
+      setStatus("当前筛选结果没有可选城市。", true);
+      return;
+    }
+    if (hasActiveSearch) {
+      setStatus(`已按筛选结果选择 ${selectedCount} 个城市。`, false);
+      return;
+    }
+    setStatus(`已选择前 ${selectedCount} 个城市。`, false);
   });
 
   clearAllBtn.addEventListener("click", () => {
