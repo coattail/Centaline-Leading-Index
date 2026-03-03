@@ -285,6 +285,12 @@ const OVERLAY_SOURCE_PROFILES = Object.freeze({
   },
 });
 const CITY_LIST_THREE_COLS_CLASS = "city-list--three-cols";
+const Y_AXIS_EDGE_PADDING_MIN = 2;
+const Y_AXIS_EDGE_PADDING_MAX = 8;
+const Y_AXIS_DEFAULT_EXTENT = Object.freeze({
+  min: 80,
+  max: 120,
+});
 const PROVINCE_NAME_BY_CODE = Object.freeze({
   "11": "北京市",
   "12": "天津市",
@@ -803,8 +809,6 @@ function applyDataSource(sourceKey) {
   uiState.hiddenCityNames.clear();
   uiState.zoomStartMonth = null;
   uiState.zoomEndMonth = null;
-  uiState.showDrawdownAnalysis = false;
-  uiState.showChartTable = true;
 
   buildCityMaps();
   const currentCityNameSet = new Set(raw.cities.map((city) => city.name));
@@ -931,6 +935,69 @@ function clampNumber(value, min, max) {
   return Math.min(Math.max(value, min), max);
 }
 
+function resolveYAxisRoundUnit(span) {
+  const safeSpan = Math.max(0, Number(span) || 0);
+  if (safeSpan >= 450) return 5;
+  if (safeSpan >= 220) return 2;
+  return 1;
+}
+
+function resolveYAxisExtent(values) {
+  if (!Array.isArray(values) || values.length === 0) {
+    return {
+      min: Y_AXIS_DEFAULT_EXTENT.min,
+      max: Y_AXIS_DEFAULT_EXTENT.max,
+    };
+  }
+
+  let minValue = Math.min(...values);
+  let maxValue = Math.max(...values);
+  if (!isFiniteNumber(minValue) || !isFiniteNumber(maxValue)) {
+    return {
+      min: Y_AXIS_DEFAULT_EXTENT.min,
+      max: Y_AXIS_DEFAULT_EXTENT.max,
+    };
+  }
+
+  if (minValue > maxValue) {
+    const swap = minValue;
+    minValue = maxValue;
+    maxValue = swap;
+  }
+
+  const rawSpan = Math.max(0, maxValue - minValue);
+  if (rawSpan < 1e-6) {
+    const center = maxValue || 100;
+    const basePad = Math.max(6, Math.abs(center) * 0.06);
+    minValue = center - basePad;
+    maxValue = center + basePad;
+  }
+
+  const span = Math.max(1e-6, maxValue - minValue);
+  const edgePad = clampNumber(span * 0.018, Y_AXIS_EDGE_PADDING_MIN, Y_AXIS_EDGE_PADDING_MAX);
+  const paddedMin = minValue - edgePad;
+  const paddedMax = maxValue + edgePad;
+  const roundUnit = resolveYAxisRoundUnit(span);
+
+  let extentMin = Math.floor(paddedMin / roundUnit) * roundUnit;
+  let extentMax = Math.ceil(paddedMax / roundUnit) * roundUnit;
+  if (extentMin === extentMax) {
+    extentMax += roundUnit;
+  }
+  if (extentMax - extentMin < roundUnit * 2) {
+    extentMin -= roundUnit;
+    extentMax += roundUnit;
+  }
+  if (extentMin >= extentMax) {
+    extentMax = extentMin + roundUnit;
+  }
+
+  return {
+    min: Number(extentMin.toFixed(6)),
+    max: Number(extentMax.toFixed(6)),
+  };
+}
+
 function findMonthIndexByToken(months, monthValue) {
   if (!Array.isArray(months) || months.length === 0) return -1;
   const token = normalizeMonthToken(monthValue);
@@ -1047,7 +1114,7 @@ function scheduleRenderFromTimeZoom() {
   });
 }
 
-function applyTimeZoomFromInputs(activeHandle) {
+function applyTimeZoomFromInputs(activeHandle, { immediate = false } = {}) {
   if (
     isSyncingTimeZoomInputs ||
     !timeZoomStartEl ||
@@ -1089,6 +1156,18 @@ function applyTimeZoomFromInputs(activeHandle) {
   }
   uiState.zoomStartMonth = normalizedStart;
   uiState.zoomEndMonth = normalizedEnd;
+  if (immediate) {
+    if (isSyncingRangeFromSlider) {
+      return;
+    }
+    isSyncingRangeFromSlider = true;
+    try {
+      render();
+    } finally {
+      isSyncingRangeFromSlider = false;
+    }
+    return;
+  }
   scheduleRenderFromTimeZoom();
 }
 
@@ -2167,9 +2246,6 @@ function updateDrawdownButton(eligibleCount) {
 
 function updateChartTableButton(eligibleCount) {
   const enabled = eligibleCount > 0;
-  if (!enabled) {
-    uiState.showChartTable = false;
-  }
 
   chartTableBtn.disabled = !enabled;
   chartTableBtn.classList.toggle("enabled", enabled);
@@ -3182,9 +3258,20 @@ function makeOption(
   const chartHeight = chart.getHeight();
   const responsiveChartWidth = getResponsiveChartWidth(chartWidth);
   const gridLayout = resolveChartGridLayout(chartWidth);
+  const collectWindowValues = (seriesList) =>
+    seriesList.flatMap((item) =>
+      item.normalized.slice(visibleStartIndex, visibleEndIndex + 1).filter(isFiniteNumber),
+    );
+  const visibleSeries = rendered.filter((item) => !hiddenCityNames.has(item.name));
+  const visibleWindowValues = collectWindowValues(visibleSeries);
+  const fallbackWindowValues = collectWindowValues(rendered);
   const allFiniteValues = rendered.flatMap((item) => item.normalized.filter(isFiniteNumber));
-  const yMin = allFiniteValues.length > 0 ? Math.min(...allFiniteValues) : 80;
-  const yMax = allFiniteValues.length > 0 ? Math.max(...allFiniteValues) : 120;
+  const yAxisValues = visibleWindowValues.length > 0
+    ? visibleWindowValues
+    : fallbackWindowValues.length > 0
+      ? fallbackWindowValues
+      : allFiniteValues;
+  const { min: yMin, max: yMax } = resolveYAxisExtent(yAxisValues);
   const yRange = Math.max(1, yMax - yMin);
   const usableChartWidth = Math.max(
     220,
@@ -3295,6 +3382,8 @@ function makeOption(
     backgroundColor: chartTheme.chartBackground,
     color: rendered.map((item) => item.color),
     animationDuration: 650,
+    animationDurationUpdate: 220,
+    animationEasingUpdate: "cubicOut",
     textStyle: {
       fontFamily: CHART_FONT_FAMILY,
       fontSize: baseTextFontSize,
@@ -3412,12 +3501,9 @@ function makeOption(
     },
     yAxis: {
       type: "value",
-      min: function (value) {
-        return Math.floor((value.min - 5) / 10) * 10;
-      },
-      max: function (value) {
-        return Math.ceil((value.max + 5) / 10) * 10;
-      },
+      min: yMin,
+      max: yMax,
+      scale: true,
       axisLine: { show: true, lineStyle: { color: chartTheme.yAxisLineColor, width: 1 } },
       axisTick: { show: true, inside: true, lineStyle: { color: chartTheme.yAxisLineColor } },
       splitLine: { show: false },
@@ -4472,16 +4558,16 @@ function bindEvents() {
 
   if (timeZoomStartEl && timeZoomEndEl) {
     timeZoomStartEl.addEventListener("input", () => {
-      applyTimeZoomFromInputs("start");
+      applyTimeZoomFromInputs("start", { immediate: true });
     });
     timeZoomEndEl.addEventListener("input", () => {
-      applyTimeZoomFromInputs("end");
+      applyTimeZoomFromInputs("end", { immediate: true });
     });
     timeZoomStartEl.addEventListener("change", () => {
-      applyTimeZoomFromInputs("start");
+      applyTimeZoomFromInputs("start", { immediate: false });
     });
     timeZoomEndEl.addEventListener("change", () => {
-      applyTimeZoomFromInputs("end");
+      applyTimeZoomFromInputs("end", { immediate: false });
     });
   }
 
