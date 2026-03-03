@@ -349,7 +349,7 @@ body.theme-dark .city-list::-webkit-scrollbar-thumb {
   -moz-appearance: none;
   width: 108px;
   min-height: 36px;
-  padding: 4px 30px;
+  padding: 4px 34px 4px 14px;
   border-radius: 999px;
   font-size: 1.02rem;
   font-weight: 700;
@@ -1373,7 +1373,7 @@ thead th {
   .hero-theme-select {
     width: 108px;
     min-height: 34px;
-    padding: 4px 28px;
+    padding: 4px 32px 4px 13px;
     font-size: 0.9rem;
   }
 
@@ -1575,7 +1575,7 @@ thead th {
   .hero-theme-select {
     width: 102px;
     min-height: 32px;
-    padding: 3px 26px;
+    padding: 3px 30px 3px 12px;
     font-size: 0.84rem;
   }
 
