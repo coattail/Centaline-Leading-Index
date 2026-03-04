@@ -9,6 +9,8 @@ const SOURCE_CONFIGS = [
     sourceTitle: "中原领先指数（月度）",
     heroSubtitle: "数据来源：Wind、中原研究中心",
     defaultSelectedNames: null,
+    dataGlobalKey: "HOUSE_PRICE_SOURCE_DATA",
+    scriptPath: "house-price-data.js",
     data: window.HOUSE_PRICE_SOURCE_DATA,
   },
   {
@@ -18,6 +20,8 @@ const SOURCE_CONFIGS = [
     sourceTitle: "国家统计局70城二手住宅销售价格指数（上月=100，链式定基）",
     heroSubtitle: "数据来源：国家统计局（70城二手住宅销售价格指数）",
     defaultSelectedNames: ["北京", "上海", "广州", "深圳", "天津", "重庆"],
+    dataGlobalKey: "HOUSE_PRICE_SOURCE_DATA_NBS_70",
+    scriptPath: "house-price-data-nbs-70.js",
     data: window.HOUSE_PRICE_SOURCE_DATA_NBS_70,
   },
 ];
@@ -55,6 +59,7 @@ const sourceSubtitleEl = document.getElementById("sourceSubtitleText");
 const THEME_MODE_STORAGE_KEY = "house-price-theme-mode";
 const THEME_MODE_LIGHT = "light";
 const THEME_MODE_DARK = "dark";
+const HTML2CANVAS_CDN_URL = "https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js";
 
 const chart = echarts.init(chartEl, null, {
   renderer: "canvas",
@@ -353,6 +358,10 @@ let isSyncingTimeZoomInputs = false;
 let textMeasureContext = null;
 let resizeRenderTimer = null;
 let chartFontsReadyPromise = null;
+let chartFontsStrictReadyPromise = null;
+const runtimeScriptLoadPromises = new Map();
+const sourceDataLoadingPromises = new Map();
+let html2canvasReadyPromise = null;
 
 function isFiniteNumber(value) {
   return typeof value === "number" && Number.isFinite(value);
@@ -409,11 +418,52 @@ function waitForChartFonts(timeoutMs = 1800) {
     setTimeout(resolve, Math.max(0, timeoutMs));
   });
 
-  chartFontsReadyPromise = Promise.race([loadPromise, timeoutPromise])
-    .then(() => document.fonts.ready.catch(() => undefined))
-    .then(() => undefined);
+  chartFontsReadyPromise = Promise.race([loadPromise, timeoutPromise]).then(() => {
+    if (!areChartFontsLoaded()) {
+      chartFontsReadyPromise = null;
+    }
+  });
 
   return chartFontsReadyPromise;
+}
+
+function waitForChartFontsStrict() {
+  if (typeof document === "undefined" || !document.fonts) {
+    return Promise.resolve();
+  }
+  if (chartFontsStrictReadyPromise) return chartFontsStrictReadyPromise;
+
+  const sampleText = "房价指数";
+  const allLoaded =
+    typeof document.fonts.check === "function" &&
+    CHART_FONT_LOAD_TARGETS.every((descriptor) => document.fonts.check(descriptor, sampleText));
+  if (allLoaded) {
+    chartFontsStrictReadyPromise = Promise.resolve();
+    return chartFontsStrictReadyPromise;
+  }
+
+  if (typeof document.fonts.load !== "function") {
+    const fallbackReady =
+      document.fonts.ready && typeof document.fonts.ready.then === "function"
+        ? document.fonts.ready.catch(() => undefined)
+        : Promise.resolve();
+    chartFontsStrictReadyPromise = fallbackReady.then(() => undefined);
+    return chartFontsStrictReadyPromise;
+  }
+
+  const loadPromise = Promise.all(
+    CHART_FONT_LOAD_TARGETS.map((descriptor) => document.fonts.load(descriptor, sampleText)),
+  ).catch(() => undefined);
+  const readyPromise =
+    document.fonts.ready && typeof document.fonts.ready.then === "function"
+      ? document.fonts.ready.catch(() => undefined)
+      : Promise.resolve();
+
+  chartFontsStrictReadyPromise = loadPromise
+    .then(() => readyPromise)
+    .then(() => undefined);
+
+  return chartFontsStrictReadyPromise;
 }
 
 function escapeHtml(value) {
@@ -588,14 +638,135 @@ function isUsableSourceData(data) {
   );
 }
 
-function listAvailableSources() {
-  return SOURCE_CONFIGS.filter((source) => isUsableSourceData(source.data));
+function getSourceData(source) {
+  if (!source) return null;
+  if (isUsableSourceData(source.data)) {
+    return source.data;
+  }
+  if (typeof window === "undefined" || !source.dataGlobalKey) {
+    return null;
+  }
+  const globalData = window[source.dataGlobalKey];
+  if (!isUsableSourceData(globalData)) {
+    return null;
+  }
+  source.data = globalData;
+  return globalData;
 }
 
-function findSourceByKey(sourceKey) {
-  const available = listAvailableSources();
-  const matched = available.find((source) => source.key === sourceKey);
-  return matched || available[0] || null;
+function listSelectableSources() {
+  return SOURCE_CONFIGS.filter((source) => Boolean(source?.scriptPath || getSourceData(source)));
+}
+
+function listLoadedSources() {
+  return SOURCE_CONFIGS.filter((source) => Boolean(getSourceData(source)));
+}
+
+function findSourceByKey(sourceKey, { loadedOnly = false } = {}) {
+  const sourceList = loadedOnly ? listLoadedSources() : listSelectableSources();
+  const matched = sourceList.find((source) => source.key === sourceKey);
+  return matched || sourceList[0] || null;
+}
+
+function loadRuntimeScript(src) {
+  const scriptSrc = String(src || "").trim();
+  if (!scriptSrc) {
+    return Promise.reject(new Error("missing-script-src"));
+  }
+  if (runtimeScriptLoadPromises.has(scriptSrc)) {
+    return runtimeScriptLoadPromises.get(scriptSrc);
+  }
+
+  const loadingPromise = new Promise((resolve, reject) => {
+    const script = document.createElement("script");
+    script.src = scriptSrc;
+    script.async = true;
+    script.onload = () => resolve();
+    script.onerror = () => reject(new Error(`script-load-failed: ${scriptSrc}`));
+    document.head.appendChild(script);
+  }).catch((error) => {
+    runtimeScriptLoadPromises.delete(scriptSrc);
+    throw error;
+  });
+
+  runtimeScriptLoadPromises.set(scriptSrc, loadingPromise);
+  return loadingPromise;
+}
+
+async function ensureSourceDataLoaded(source) {
+  if (!source) return null;
+  const readyData = getSourceData(source);
+  if (readyData) return readyData;
+
+  if (sourceDataLoadingPromises.has(source.key)) {
+    return sourceDataLoadingPromises.get(source.key);
+  }
+
+  const loadingPromise = (async () => {
+    if (!source.scriptPath) return null;
+    await loadRuntimeScript(source.scriptPath);
+    const loaded = getSourceData(source);
+    return loaded || null;
+  })().finally(() => {
+    sourceDataLoadingPromises.delete(source.key);
+  });
+
+  sourceDataLoadingPromises.set(source.key, loadingPromise);
+  return loadingPromise;
+}
+
+function listAvailableSources() {
+  return listLoadedSources();
+}
+
+function scheduleIdleTask(task, timeout = 1200) {
+  if (typeof window !== "undefined" && typeof window.requestIdleCallback === "function") {
+    window.requestIdleCallback(() => task(), { timeout });
+    return;
+  }
+  setTimeout(() => task(), Math.min(timeout, 480));
+}
+
+function areChartFontsLoaded() {
+  if (typeof document === "undefined" || !document.fonts || typeof document.fonts.check !== "function") {
+    return false;
+  }
+  const sampleText = "房价指数";
+  return CHART_FONT_LOAD_TARGETS.every((descriptor) => document.fonts.check(descriptor, sampleText));
+}
+
+function warmupSourceDataInBackground(activeKey) {
+  const sourcesToWarmup = SOURCE_CONFIGS.filter((source) => source.key !== activeKey);
+  sourcesToWarmup.forEach((source) => {
+    if (getSourceData(source)) return;
+    scheduleIdleTask(() => {
+      ensureSourceDataLoaded(source)
+        .then((loadedData) => {
+          if (!loadedData) return;
+          if (activeSourceMeta?.key === activeKey) {
+            refreshCompareSourceControl({ keepSelection: true });
+          }
+        })
+        .catch(() => undefined);
+    });
+  });
+}
+
+async function ensureHtml2CanvasReady() {
+  if (typeof window.html2canvas === "function") {
+    return true;
+  }
+  if (!html2canvasReadyPromise) {
+    html2canvasReadyPromise = loadRuntimeScript(HTML2CANVAS_CDN_URL)
+      .then(() => typeof window.html2canvas === "function")
+      .catch(() => false)
+      .finally(() => {
+        if (typeof window.html2canvas !== "function") {
+          html2canvasReadyPromise = null;
+        }
+      });
+  }
+  return html2canvasReadyPromise;
 }
 
 function populateSourceSelector(availableSources) {
@@ -762,7 +933,8 @@ function collectCityCheckboxInputs({ visibleOnly = false } = {}) {
 function buildSourceSubtitle(source) {
   const baseText = String(source?.heroSubtitle || "").trim();
   if (!source || source.key !== "nbs70") return baseText;
-  const dates = Array.isArray(source.data?.dates) ? source.data.dates : [];
+  const sourceData = getSourceData(source);
+  const dates = Array.isArray(sourceData?.dates) ? sourceData.dates : [];
   if (dates.length === 0) return baseText;
   const startMonth = normalizeMonthToken(dates[0]) || String(dates[0] || "");
   const endMonth = normalizeMonthToken(dates[dates.length - 1]) || String(dates[dates.length - 1] || "");
@@ -770,7 +942,7 @@ function buildSourceSubtitle(source) {
   return `${baseText}｜数据范围：${startMonth} ~ ${endMonth}`;
 }
 
-function applyDataSource(sourceKey) {
+async function applyDataSource(sourceKey) {
   const source = findSourceByKey(sourceKey);
   if (!source) return false;
   const previousSelectedCityNames = raw
@@ -778,8 +950,11 @@ function applyDataSource(sourceKey) {
       .map((cityId) => cityById.get(cityId)?.name)
       .filter(Boolean)
     : null;
+  const sourceData = await ensureSourceDataLoaded(source);
+  if (!isUsableSourceData(sourceData)) return false;
 
-  raw = source.data;
+  source.data = sourceData;
+  raw = sourceData;
   activeSourceMeta = source;
   if (sourceSubtitleEl) {
     sourceSubtitleEl.textContent = buildSourceSubtitle(source);
@@ -811,13 +986,13 @@ function applyDataSource(sourceKey) {
   uiState.zoomEndMonth = null;
 
   buildCityMaps();
-  const currentCityNameSet = new Set(raw.cities.map((city) => city.name));
+  const currentCityNameSet = new Set(sourceData.cities.map((city) => city.name));
   const nextSelectedNames = Array.isArray(previousSelectedCityNames)
     ? previousSelectedCityNames.filter((name) => currentCityNameSet.has(name))
     : source.defaultSelectedNames;
-  buildCityControls(raw.cities, nextSelectedNames);
+  buildCityControls(sourceData.cities, nextSelectedNames);
   applyCitySearchFilter();
-  buildMonthSelects(raw.dates);
+  buildMonthSelects(sourceData.dates);
   refreshCompareSourceControl({ keepSelection: false });
   return true;
 }
@@ -1819,15 +1994,18 @@ function resolveCompareContext(selectedCityIds) {
   const eligibility = getCompareEligibility(selectedCityIds);
   if (!eligibility.eligible) return null;
 
-  const compareSource = findSourceByKey(compareSourceKey);
+  const compareSource = findSourceByKey(compareSourceKey, { loadedOnly: true });
   if (!compareSource || compareSource.key === activeSourceMeta?.key) return null;
+  const compareSourceData = getSourceData(compareSource);
+  if (!compareSourceData) return null;
 
-  const compareCity = compareSource.data?.cities?.find((city) => city.name === eligibility.cityName);
+  const compareCity = compareSourceData.cities?.find((city) => city.name === eligibility.cityName);
   if (!compareCity) return null;
 
   return {
     cityName: eligibility.cityName,
     source: compareSource,
+    sourceData: compareSourceData,
     city: compareCity,
   };
 }
@@ -2754,12 +2932,15 @@ async function exportCurrentChartImage(pixelRatio = 2, label = "标准清晰") {
   }
 
   await waitForChartFonts();
+  const canUseHtml2Canvas = await ensureHtml2CanvasReady();
 
   let stageSnapshot = null;
-  try {
-    stageSnapshot = await captureChartStageSnapshot(pixelRatio);
-  } catch (error) {
-    stageSnapshot = null;
+  if (canUseHtml2Canvas) {
+    try {
+      stageSnapshot = await captureChartStageSnapshot(pixelRatio);
+    } catch (error) {
+      stageSnapshot = null;
+    }
   }
 
   if (stageSnapshot?.dataURL) {
@@ -4475,9 +4656,10 @@ function render() {
   });
 
   if (compareContext) {
-    const compareSeries = compareContext.source?.data?.values?.[compareContext.city.id];
+    const compareSourceData = compareContext.sourceData || getSourceData(compareContext.source);
+    const compareSeries = compareSourceData?.values?.[compareContext.city.id];
     if (Array.isArray(compareSeries)) {
-      const compareSeriesByMonths = alignSeriesByMonths(compareContext.source.data, compareSeries, months);
+      const compareSeriesByMonths = alignSeriesByMonths(compareSourceData, compareSeries, months);
       let normalizedCompareSeries = null;
       const compareStartRaw = compareSeriesByMonths[viewportStartOffset];
 
@@ -4622,13 +4804,36 @@ function bindEvents() {
   }
 
   if (dataSourceEl) {
-    dataSourceEl.addEventListener("change", () => {
-      const applied = applyDataSource(dataSourceEl.value);
-      if (!applied) {
-        setStatus("数据源切换失败，请刷新重试。", true);
+    dataSourceEl.addEventListener("change", async () => {
+      const source = findSourceByKey(dataSourceEl.value);
+      if (!source) {
+        setStatus("未找到可用数据源。", true);
         return;
       }
-      render();
+
+      const isNeedLoad = !getSourceData(source);
+      if (isNeedLoad) {
+        setStatus(`正在加载 ${source.label}...`, false);
+      }
+      dataSourceEl.disabled = true;
+      try {
+        const applied = await applyDataSource(source.key);
+        if (!applied) {
+          if (activeSourceMeta?.key) {
+            dataSourceEl.value = activeSourceMeta.key;
+          }
+          setStatus("数据源切换失败，请刷新重试。", true);
+          return;
+        }
+        render();
+      } catch (error) {
+        if (activeSourceMeta?.key) {
+          dataSourceEl.value = activeSourceMeta.key;
+        }
+        setStatus("数据源切换失败，请刷新重试。", true);
+      } finally {
+        dataSourceEl.disabled = listSelectableSources().length <= 1;
+      }
     });
   }
 
@@ -4771,18 +4976,26 @@ function bindEvents() {
 }
 
 async function init() {
-  const availableSources = listAvailableSources();
-  if (availableSources.length === 0) {
-    setStatus("数据加载失败，请先生成 house-price-data.js / house-price-data-nbs-70.js。", true);
+  const selectableSources = listSelectableSources();
+  if (selectableSources.length === 0) {
+    setStatus("数据源配置缺失，请先生成 house-price-data.js / house-price-data-nbs-70.js。", true);
     return;
   }
 
   applyThemeMode(readStoredThemeMode(), { persist: false, rerender: false });
 
-  populateSourceSelector(availableSources);
+  populateSourceSelector(selectableSources);
   const defaultSource =
-    availableSources.find((source) => source.key === "centaline6") || availableSources[0];
-  const applied = applyDataSource(defaultSource.key);
+    selectableSources.find((source) => source.key === "centaline6") || selectableSources[0];
+  if (!getSourceData(defaultSource)) {
+    setStatus(`正在加载 ${defaultSource.label}...`, false);
+  }
+  let applied = false;
+  try {
+    applied = await applyDataSource(defaultSource.key);
+  } catch (error) {
+    applied = false;
+  }
   if (!applied) {
     setStatus("初始化数据源失败，请刷新页面重试。", true);
     return;
@@ -4790,8 +5003,12 @@ async function init() {
 
   bindEvents();
   bindChartWheelToPageScroll();
-  await waitForChartFonts();
+  if (!areChartFontsLoaded()) {
+    setStatus("正在加载图表字体...", false);
+  }
+  await waitForChartFontsStrict();
   render();
+  warmupSourceDataInBackground(defaultSource.key);
 }
 
 init();
