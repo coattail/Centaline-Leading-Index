@@ -63,7 +63,7 @@ Typical use cases:
 ### 3.1 Frontend
 
 - Vanilla HTML / CSS / JavaScript
-- ECharts (via CDN) for chart rendering
+- ECharts (local `vendor/echarts.min.js`) for chart rendering
 - html2canvas (via CDN) for screenshot-style export
 
 ### 3.2 Data Organization
@@ -90,12 +90,19 @@ Centaline-Leading-Index/
 ├── index.html
 ├── style.css
 ├── app.js
+├── fonts/
+│   ├── STKaiti-full.woff2
+│   ├── STKaiti-subset.woff2
+│   └── STKaiti-subset-chars.txt
 ├── house-price-data.js
 ├── house-price-data.json
 ├── house-price-data-nbs-70.js
 ├── house-price-data-nbs-70.json
 ├── hk-centaline-monthly.json
+├── vendor/
+│   └── echarts.min.js
 ├── scripts/
+│   ├── build-stkaiti-subset.py
 │   ├── extract-house-price-data.mjs
 │   ├── fetch-hk-centaline-monthly.mjs
 │   └── fetch-nbs-70city-secondhand.mjs
@@ -198,6 +205,22 @@ What it does:
 - Reports long flat segments, sharp monthly moves, source-side zero placeholders, and missing-value carry-forwards
 - Exits with non-zero code when `mismatchCount > 0`, which is useful for CI monitoring
 
+### 7.5 Rebuild STKaiti Subset Font (Performance)
+
+```bash
+python3 scripts/build-stkaiti-subset.py
+```
+
+Outputs:
+
+- `fonts/STKaiti-subset.woff2`
+- `fonts/STKaiti-subset-chars.txt`
+
+Notes:
+
+- The script collects glyphs from `index.html`, `app.js`, `style.css`, and data files, then rebuilds a subset font.
+- If dependencies are missing, run: `python3 -m pip install --user fonttools brotli`
+
 ---
 
 ## 8. Automatic Monthly NBS Updates (GitHub Actions)
@@ -234,6 +257,8 @@ At minimum, ensure these files are published at the site root:
 - `app.js`
 - `house-price-data.js`
 - `house-price-data-nbs-70.js`
+- `vendor/echarts.min.js`
+- `fonts/STKaiti-subset.woff2`
 
 ### 9.2 Cache Refresh
 

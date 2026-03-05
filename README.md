@@ -62,7 +62,7 @@
 ### 3.1 前端
 
 - HTML / CSS / JavaScript（Vanilla）
-- ECharts（CDN）用于图表渲染
+- ECharts（本地 `vendor/echarts.min.js`）用于图表渲染
 - html2canvas（CDN）用于页面态导出
 
 ### 3.2 数据组织
@@ -89,12 +89,19 @@ Centaline-Leading-Index/
 ├── index.html
 ├── style.css
 ├── app.js
+├── fonts/
+│   ├── STKaiti-full.woff2
+│   ├── STKaiti-subset.woff2
+│   └── STKaiti-subset-chars.txt
 ├── house-price-data.js
 ├── house-price-data.json
 ├── house-price-data-nbs-70.js
 ├── house-price-data-nbs-70.json
 ├── hk-centaline-monthly.json
+├── vendor/
+│   └── echarts.min.js
 ├── scripts/
+│   ├── build-stkaiti-subset.py
 │   ├── extract-house-price-data.mjs
 │   ├── fetch-hk-centaline-monthly.mjs
 │   └── fetch-nbs-70city-secondhand.mjs
@@ -197,6 +204,22 @@ node scripts/audit-nbs-70city-secondhand.mjs house-price-data-nbs-70.json /tmp/n
 - 输出长直线区间、单月大幅波动、源端 `0` 占位值、缺失值补位点
 - `mismatchCount > 0` 时脚本会返回非零退出码，便于 CI/巡检告警
 
+### 7.5 楷体子集字体重建（性能优化）
+
+```bash
+python3 scripts/build-stkaiti-subset.py
+```
+
+产物：
+
+- `fonts/STKaiti-subset.woff2`
+- `fonts/STKaiti-subset-chars.txt`
+
+说明：
+
+- 脚本会从 `index.html`、`app.js`、`style.css` 与数据文件提取字形集合，再生成子集字体
+- 如缺依赖，请先执行：`python3 -m pip install --user fonttools brotli`
+
 ---
 
 ## 8. 统计局自动月更（GitHub Actions）
@@ -233,6 +256,8 @@ node scripts/audit-nbs-70city-secondhand.mjs house-price-data-nbs-70.json /tmp/n
 - `app.js`
 - `house-price-data.js`
 - `house-price-data-nbs-70.js`
+- `vendor/echarts.min.js`
+- `fonts/STKaiti-subset.woff2`
 
 ### 9.2 缓存刷新
 
