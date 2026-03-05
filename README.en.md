@@ -1,126 +1,68 @@
 # House Price Dashboard (Centaline-Leading-Index)
 
+[![NBS Auto Update](https://github.com/Sunny-1991/Centaline-Leading-Index/actions/workflows/auto-update-nbs-data.yml/badge.svg)](https://github.com/Sunny-1991/Centaline-Leading-Index/actions/workflows/auto-update-nbs-data.yml)
+![Static Site](https://img.shields.io/badge/Architecture-Static%20Site-0ea5e9)
+![ECharts 5](https://img.shields.io/badge/Chart-ECharts%205-22c55e)
+
 [中文说明](./README.md)
 
-A research-oriented dashboard for visualizing second-hand housing price trends in Chinese cities.
-It uses a **fully static frontend architecture** (no bundler/build pipeline) and supports dual data sources, rebasing, cross-source comparison, in-chart summary tables, high-resolution export, and mobile-friendly layouts.
+> A research-focused dashboard for visualizing second-hand housing price trends across Chinese cities.  
+> It is a fully static frontend project (no bundler, no backend) with dual data sources, rebasing, cross-source comparison, drawdown analytics, and high-resolution export.
 
----
+## Table of Contents
 
-## 1. Project Scope
+- [Highlights](#highlights)
+- [Architecture](#architecture)
+- [Quick Start](#quick-start)
+- [Usage Flow](#usage-flow)
+- [Data Workflow & Scripts](#data-workflow--scripts)
+- [Automated Monthly Update (GitHub Actions)](#automated-monthly-update-github-actions)
+- [Project Structure](#project-structure)
+- [FAQ](#faq)
+- [Compliance Notice](#compliance-notice)
 
-This project helps answer two practical questions:
+## Highlights
 
-- How do city-level housing trends diverge within the same time window?
-- How do different data sources compare for the same city?
+### 1) Data Sources and Coverage
 
-Typical use cases:
+- **Centaline Leading Index (6 cities)**: main data is generated from local Excel extraction, with optional Hong Kong CCL monthly merge.
+- **NBS 70-city index**: fetched from the official NBS endpoint and chained from “previous month = 100”.
+- **Static runtime model**: both sources are shipped as local `JS/JSON` files, so the page has no runtime API dependency.
 
-- Real-estate cycle research
-- Macro content creation
-- Relative city strength monitoring
+### 2) Interaction and Analytics
 
----
+- Compare up to **6 cities** at once.
+- For NBS source, supports **city/province keyword** search in the city picker.
+- Time dropdowns and dual-handle slider are synchronized.
+- Range rebasing (selected start month = 100).
+- Drawdown analytics (peak, current drawdown, recovery point) when eligibility rules are met.
+- Cross-source comparison is enabled only for **single-city selection** among: Beijing, Shanghai, Guangzhou, Shenzhen, Tianjin.
+- Toggleable in-chart summary table for key stats (peak, latest, drawdown, etc.).
 
-## 2. Key Features
+### 3) Presentation and Export
 
-### 2.1 Dual Data Sources
+- Light / dark theme switch with preference persisted to `localStorage`.
+- Responsive layout for desktop and mobile.
+- Standard and ultra-HD PNG export; non-core controls are hidden during export for cleaner visuals.
 
-- Centaline Leading Index (6 cities)
-- NBS 70-city second-hand housing index
+## Architecture
 
-### 2.2 Chart Interaction
+- **Frontend**: `index.html` + `style.css` + `app.js` (Vanilla JS)
+- **Charting**: local `vendor/echarts.min.js`
+- **Export**: tries `html2canvas` capture first, then falls back to ECharts export pipeline
+- **Data**: `house-price-data.js`, `house-price-data-nbs-70.js`, plus JSON snapshots
+- **Automation**: `.github/workflows/auto-update-nbs-data.yml` refreshes NBS data monthly
 
-- Compare up to 6 cities simultaneously
-- External dual-handle time slider below the chart
-- Two-way sync between date dropdowns and slider
-- Light / dark theme switch
+## Quick Start
 
-### 2.3 Analytics
-
-- Rebase by selected range (start month = 100)
-- Drawdown analysis (peak, drawdown, recovery)
-- Cross-source comparison (available under rule-based conditions)
-- In-chart summary table toggle
-
-### 2.4 Export
-
-- Standard PNG
-- Ultra-HD PNG
-- Export automatically hides non-core UI controls for cleaner output
-
-### 2.5 Recent Maintenance Updates (2026-02-27)
-
-- Interaction and visual behavior are unchanged; updates focus on maintainability and safety.
-- Responsive thresholds and layout values are centralized in constants (for example `RESPONSIVE_BREAKPOINTS`, `RESPONSIVE_GRID_LAYOUTS`, `RESPONSIVE_CHART_LAYOUTS`).
-- Select options and summary cells now use DOM APIs (`createElement` / `textContent`) instead of dynamic HTML strings.
-- Dynamic text in the in-chart stats overlay is consistently sanitized via `escapeHtml`.
-
----
-
-## 3. Technical Architecture (Portable)
-
-### 3.1 Frontend
-
-- Vanilla HTML / CSS / JavaScript
-- ECharts (local `vendor/echarts.min.js`) for chart rendering
-- html2canvas (via CDN) for screenshot-style export
-
-### 3.2 Data Organization
-
-The frontend reads static data files from the repository directly:
-
-- `house-price-data.js` (Centaline source)
-- `house-price-data-nbs-70.js` (NBS source)
-- JSON variants for verification/reuse
-
-### 3.3 Update Strategy
-
-- Centaline data: manual updates (optionally via Excel extraction script)
-- NBS data: automatic monthly refresh via GitHub Actions
-
-> Even with scheduled updates, runtime remains static: pages load static JS/JSON files from the repo.
-
----
-
-## 4. Project Structure
-
-```text
-Centaline-Leading-Index/
-├── index.html
-├── style.css
-├── app.js
-├── fonts/
-│   ├── STKaiti-full.woff2
-│   ├── STKaiti-subset.woff2
-│   └── STKaiti-subset-chars.txt
-├── house-price-data.js
-├── house-price-data.json
-├── house-price-data-nbs-70.js
-├── house-price-data-nbs-70.json
-├── hk-centaline-monthly.json
-├── vendor/
-│   └── echarts.min.js
-├── scripts/
-│   ├── build-stkaiti-subset.py
-│   ├── extract-house-price-data.mjs
-│   ├── fetch-hk-centaline-monthly.mjs
-│   └── fetch-nbs-70city-secondhand.mjs
-├── README.md
-└── README.en.md
-```
-
----
-
-## 5. Quick Start
-
-### 5.1 Requirements
+### Requirements
 
 - Node.js 18+
-- Python 3 (for serving static files locally)
-- Modern browsers (latest Chrome / Edge / Safari recommended)
+- Python 3
+- `curl` and `unzip` (used by data scripts)
+- Modern browser (latest Chrome / Edge / Safari recommended)
 
-### 5.2 Run Locally
+### Run Locally
 
 ```bash
 git clone https://github.com/Sunny-1991/Centaline-Leading-Index.git
@@ -128,174 +70,115 @@ cd Centaline-Leading-Index
 python3 -m http.server 9013
 ```
 
-Open in browser:
+Open: <http://127.0.0.1:9013>
 
-- <http://127.0.0.1:9013>
+> Avoid opening `index.html` via `file://` because browser policies may block resource loading.
 
-> Avoid opening `index.html` directly via `file://`, as browser security policies may block resources.
+### Local Access Troubleshooting (Proxy / VPN)
 
-### 5.3 Local Access Troubleshooting (Proxy / VPN)
-
-If the server is running but the page still cannot be opened, local traffic may be intercepted by proxy settings. You can temporarily start the server without proxy env vars:
+If the server is up but the page is unreachable, temporarily clear proxy env vars:
 
 ```bash
 env -u HTTP_PROXY -u HTTPS_PROXY -u ALL_PROXY python3 -m http.server 9013 --bind 0.0.0.0
 ```
 
-Access URLs:
-
-- Same device: <http://127.0.0.1:9013>
-- Other devices in LAN: <http://your-lan-ip:9013>
-
----
-
-## 6. Typical Usage Flow
-
-1. Select data source (Centaline / NBS)
-2. Select cities (up to 6)
-3. Select start/end months
-4. Click "Generate"
-5. Optionally enable drawdown and in-chart table
-6. Fine-tune range using the external time slider
-7. Export standard or ultra-HD chart images
-
----
-
-## 7. Data Update Guide
-
-### 7.1 Fetch Hong Kong Monthly Data (optional)
+Connectivity check:
 
 ```bash
-node scripts/fetch-hk-centaline-monthly.mjs
+curl --noproxy '*' -I http://127.0.0.1:9013
 ```
 
-Output: `hk-centaline-monthly.json`
+## Usage Flow
 
-### 7.2 Extract Centaline Data from Excel
+1. Select data source (Centaline / NBS).
+2. Select cities (up to 6).
+3. Pick start/end months and click **Generate**.
+4. Optionally enable **Drawdown** and **Summary Table**.
+5. Fine-tune range with the timeline slider.
+6. Export standard or ultra-HD images.
+
+## Data Workflow & Scripts
+
+> No build step is required. After data refresh, just reload the page.
+
+| Task | Command | Main Output |
+| --- | --- | --- |
+| Fetch HK CCL monthly data (optional) | `node scripts/fetch-hk-centaline-monthly.mjs` | `hk-centaline-monthly.json` |
+| Extract Centaline base data from Excel | `node scripts/extract-house-price-data.mjs <excel-file.xlsx>` | `house-price-data.js` / `house-price-data.json` |
+| Fetch & build NBS chained dataset | `node scripts/fetch-nbs-70city-secondhand.mjs` | `house-price-data-nbs-70.js` / `house-price-data-nbs-70.json` |
+| Audit NBS chained consistency (read-only) | `node scripts/audit-nbs-70city-secondhand.mjs house-price-data-nbs-70.json /tmp/nbs-audit-report.json` | `/tmp/nbs-audit-report.json` |
+| Rebuild STKaiti subset font (performance) | `python3 scripts/build-stkaiti-subset.py` | `fonts/STKaiti-subset.woff2` / `fonts/STKaiti-subset-chars.txt` |
+
+### Optional Environment Variables for NBS Builder
+
+- `NBS_OUTPUT_MIN_MONTH`: output start month (e.g. `2006-01`)
+- `NBS_OUTPUT_BASE_MONTH`: rebasing anchor month (e.g. `2006-01`)
+- `NBS_OUTPUT_MAX_MONTH`: output end month (defaults to current UTC month)
+
+Example:
 
 ```bash
-node scripts/extract-house-price-data.mjs <excel-file.xlsx>
-```
-
-Outputs:
-
-- `house-price-data.js`
-- `house-price-data.json`
-
-### 7.3 Fetch and Build NBS 70-city Data
-
-```bash
+NBS_OUTPUT_MIN_MONTH=2008-01 \
+NBS_OUTPUT_BASE_MONTH=2008-01 \
+NBS_OUTPUT_MAX_MONTH=2026-01 \
 node scripts/fetch-nbs-70city-secondhand.mjs
 ```
 
-Outputs:
+## Automated Monthly Update (GitHub Actions)
 
-- `house-price-data-nbs-70.js`
-- `house-price-data-nbs-70.json`
+Workflow: `.github/workflows/auto-update-nbs-data.yml`
 
-### 7.4 NBS 70-city Consistency Audit (Audit-only, No Data Mutation)
+- Schedule: **02:30 UTC on day 6 of each month**
+- Manual trigger: `workflow_dispatch`
+- Scope: NBS dataset only
+  1. Run `node scripts/fetch-nbs-70city-secondhand.mjs`
+  2. Check diffs in `house-price-data-nbs-70.js/.json`
+  3. Commit and push only when files changed
 
-```bash
-node scripts/audit-nbs-70city-secondhand.mjs house-price-data-nbs-70.json /tmp/nbs-audit-report.json
+> Paid Centaline source should still be refreshed manually.
+
+## Project Structure
+
+```text
+Centaline-Leading-Index/
+├── index.html
+├── style.css
+├── app.js
+├── house-price-data.js
+├── house-price-data.json
+├── house-price-data-nbs-70.js
+├── house-price-data-nbs-70.json
+├── hk-centaline-monthly.json
+├── fonts/
+├── scripts/
+├── vendor/
+├── .github/workflows/auto-update-nbs-data.yml
+├── README.md
+└── README.en.md
 ```
 
-What it does:
+## FAQ
 
-- Refetches yearly NBS `A010807` records and verifies local chained values against source data
-- Reports long flat segments, sharp monthly moves, source-side zero placeholders, and missing-value carry-forwards
-- Exits with non-zero code when `mismatchCount > 0`, which is useful for CI monitoring
+### The page is stuck at "Loading..."
 
-### 7.5 Rebuild STKaiti Subset Font (Performance)
+- Serve via `http://` instead of `file://`.
+- Ensure `house-price-data*.js` exists and is valid.
 
-```bash
-python3 scripts/build-stkaiti-subset.py
-```
+### Why is cross-source comparison disabled?
 
-Outputs:
+- It works only when exactly one city is selected.
+- Supported cities are Beijing, Shanghai, Guangzhou, Shenzhen, and Tianjin.
 
-- `fonts/STKaiti-subset.woff2`
-- `fonts/STKaiti-subset-chars.txt`
+### Why is drawdown toggle unavailable?
 
-Notes:
+- It is enabled only when the latest value is sufficiently below its historical peak.
 
-- The script collects glyphs from `index.html`, `app.js`, `style.css`, and data files, then rebuilds a subset font.
-- If dependencies are missing, run: `python3 -m pip install --user fonttools brotli`
+### If updates are automated, why is this still a static site?
 
----
+- Automation only refreshes repository data files offline.
+- Runtime still loads static assets only (no backend API).
 
-## 8. Automatic Monthly NBS Updates (GitHub Actions)
+## Compliance Notice
 
-Workflow file:
-
-- `.github/workflows/auto-update-nbs-data.yml`
-
-Triggers:
-
-- Monthly scheduled run (UTC)
-- Manual `workflow_dispatch`
-
-Workflow behavior:
-
-1. Runs `node scripts/fetch-nbs-70city-secondhand.mjs`
-2. Checks whether target data files changed
-3. Commits and pushes only when changes are detected
-
-This automation covers NBS updates only. Paid Centaline data should still be updated manually.
-
----
-
-## 9. Deployment Notes
-
-### 9.1 GitHub Pages
-
-Because this is a static site, deployment is straightforward after pushing repository files.
-
-At minimum, ensure these files are published at the site root:
-
-- `index.html`
-- `style.css`
-- `app.js`
-- `house-price-data.js`
-- `house-price-data-nbs-70.js`
-- `vendor/echarts.min.js`
-- `fonts/STKaiti-subset.woff2`
-
-### 9.2 Cache Refresh
-
-If changes do not appear immediately:
-
-- Hard refresh (`Cmd/Ctrl + Shift + R`)
-- Or bump asset query versions in `index.html` (`?v=...`)
-
----
-
-## 10. FAQ
-
-### Q1. The page stays on "Loading..."
-
-- Make sure you are serving via `http://`, not `file://`
-- Verify `house-price-data*.js` files exist and are valid
-
-### Q2. Exported image does not match on-screen chart
-
-- Click "Generate" before exporting
-- Export reflects the current chart state (cities, range, toggles)
-
-### Q3. Is this still a static site if NBS updates are automated?
-
-- Yes. Automation only refreshes repository data files offline
-- Runtime still serves static frontend and static JS/JSON assets
-
-### Q4. Server is running but browser still cannot open the page
-
-- Ensure `localhost`, `127.0.0.1`, and your LAN subnet are routed as direct/no-proxy.
-- Verify connectivity from terminal: `curl --noproxy '*' -I http://127.0.0.1:9013`.
-- If terminal works but browser fails, the browser/proxy rule is usually the root cause.
-
----
-
-## 11. Compliance Notice
-
-- Data sources may be subject to licensing or usage restrictions.
-- Use this project within legal and policy-compliant boundaries.
-- The project is intended for research and communication, not investment advice.
+- Data providers may impose licensing and usage constraints; use responsibly.
+- This project is for research and communication, not investment advice.

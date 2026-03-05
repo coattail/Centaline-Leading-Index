@@ -1,125 +1,68 @@
-# 房价可视化（Centaline-Leading-Index）
+# 房价可视化仪表盘（Centaline-Leading-Index）
 
-[English README](./README.en.md)
+[![NBS Auto Update](https://github.com/Sunny-1991/Centaline-Leading-Index/actions/workflows/auto-update-nbs-data.yml/badge.svg)](https://github.com/Sunny-1991/Centaline-Leading-Index/actions/workflows/auto-update-nbs-data.yml)
+![Static Site](https://img.shields.io/badge/Architecture-Static%20Site-0ea5e9)
+![ECharts 5](https://img.shields.io/badge/Chart-ECharts%205-22c55e)
 
-一个面向研究与内容创作的中国二手住宅价格可视化项目。项目采用**纯前端静态架构**（无打包构建依赖），支持双数据源切换、区间重定基、跨源对比、图内统计表、高清导出，以及移动端适配。
+[English](./README.en.md)
 
----
+> 一个面向研究与内容创作的中国二手住宅价格分析看板。  
+> 纯前端静态架构（无打包、无后端），支持双数据源切换、区间重定基、跨源对比、回撤分析和高清导出。
 
-## 1. 项目定位
+## 目录
 
-本项目用于回答两类常见问题：
+- [核心能力](#核心能力)
+- [技术架构](#技术架构)
+- [快速开始](#快速开始)
+- [使用流程](#使用流程)
+- [数据更新与脚本](#数据更新与脚本)
+- [自动化月更（GitHub Actions）](#自动化月更github-actions)
+- [项目结构](#项目结构)
+- [常见问题（FAQ）](#常见问题faq)
+- [合规与声明](#合规与声明)
 
-- 不同城市在同一时间区间内的价格走势差异如何？
-- 在同一城市维度下，不同数据源的走势差异如何？
+## 核心能力
 
-适用场景：
+### 1) 数据源与覆盖
 
-- 房地产周期研究
-- 宏观内容图表制作
-- 城市间相对强弱观察
+- **中原领先指数（6城）**：主数据来自本地 Excel 提取，可选叠加香港 CCL 月度序列。
+- **国家统计局 70 城**：使用 NBS 官方接口抓取“上月=100”数据并链式定基。
+- **双源统一体验**：前端以静态 `JS/JSON` 直接读取，不依赖运行时后端 API。
 
----
+### 2) 图表交互与分析
 
-## 2. 核心功能
+- 最多同时选择 **6 个城市**对比。
+- 统计局数据源支持“**城市 / 省份关键词**”搜索筛选。
+- 时间下拉框与双端滑块联动，快速调整可视区间。
+- 区间重定基（所选起点 = 100）。
+- 累计跌幅分析：自动识别峰值、当前回撤和“跌回”节点（满足条件时可开启）。
+- 跨源对比：仅在**单选且为北京/上海/广州/深圳/天津**时启用。
+- 图内汇总表开关：同步展示峰值、最新值、回撤等关键指标。
 
-### 2.1 双数据源
+### 3) 展示与导出
 
-- 中原领先指数（6城）
-- 国家统计局（二手住宅 70 城）
+- 浅色 / 深色主题切换（主题偏好写入 `localStorage`）。
+- 响应式布局，兼容桌面与移动端。
+- 工具栏支持标准与超清 PNG 导出；导出时自动清理非核心控件，图面更干净。
 
-### 2.2 图表交互
+## 技术架构
 
-- 最多选择 6 个城市同时对比
-- 图表下方独立时间滑块（双端拖拽）
-- 时间区间下拉 + 滑块双向联动
-- 浅色 / 深色主题切换
+- **Frontend**：`index.html` + `style.css` + `app.js`（Vanilla JS）。
+- **Chart Engine**：本地 `vendor/echarts.min.js`。
+- **Export Pipeline**：优先使用 `html2canvas` 捕获页面态，失败时自动降级到 ECharts 导出路径。
+- **Data Files**：`house-price-data.js`、`house-price-data-nbs-70.js` 及对应 JSON 快照。
+- **Automation**：`.github/workflows/auto-update-nbs-data.yml` 每月自动更新 NBS 数据。
 
-### 2.3 分析能力
+## 快速开始
 
-- 区间重定基（起点 = 100）
-- 累计跌幅分析（峰值、回撤、跌回）
-- 跨源对比（单城市且满足规则时启用）
-- 图内统计汇总表（可开关）
-
-### 2.4 导出能力
-
-- 标准清晰 PNG
-- 超清 PNG
-- 导出时自动隐藏工具图标与滑块等非核心控件，保证成图干净
-
-### 2.5 近期维护更新（2026-02-27）
-
-- 保持交互与视觉不变，更新聚焦于可维护性和安全性。
-- 将响应式阈值与布局参数集中到统一常量（如 `RESPONSIVE_BREAKPOINTS`、`RESPONSIVE_GRID_LAYOUTS`、`RESPONSIVE_CHART_LAYOUTS`）。
-- 下拉框与汇总表改为 DOM API（`createElement` / `textContent`）构建，降低动态 HTML 拼接风险。
-- 图内统计表所有动态文本统一经过 `escapeHtml` 处理，减少潜在注入面。
-
----
-
-## 3. 技术架构（通用版）
-
-### 3.1 前端
-
-- HTML / CSS / JavaScript（Vanilla）
-- ECharts（本地 `vendor/echarts.min.js`）用于图表渲染
-- html2canvas（CDN）用于页面态导出
-
-### 3.2 数据组织
-
-前端直接读取仓库内静态数据文件：
-
-- `house-price-data.js`（中原主数据）
-- `house-price-data-nbs-70.js`（统计局 70 城）
-- 对应 JSON 产物用于校验/复用
-
-### 3.3 更新策略
-
-- 中原数据：人工喂数（可配合 Excel 提取脚本）
-- 统计局数据：GitHub Actions 自动月更并提交数据文件
-
-> 说明：即使有自动更新流程，线上页面依然是静态站点，不依赖后端实时接口。
-
----
-
-## 4. 项目结构
-
-```text
-Centaline-Leading-Index/
-├── index.html
-├── style.css
-├── app.js
-├── fonts/
-│   ├── STKaiti-full.woff2
-│   ├── STKaiti-subset.woff2
-│   └── STKaiti-subset-chars.txt
-├── house-price-data.js
-├── house-price-data.json
-├── house-price-data-nbs-70.js
-├── house-price-data-nbs-70.json
-├── hk-centaline-monthly.json
-├── vendor/
-│   └── echarts.min.js
-├── scripts/
-│   ├── build-stkaiti-subset.py
-│   ├── extract-house-price-data.mjs
-│   ├── fetch-hk-centaline-monthly.mjs
-│   └── fetch-nbs-70city-secondhand.mjs
-├── README.md
-└── README.en.md
-```
-
----
-
-## 5. 快速开始
-
-### 5.1 环境要求
+### 环境要求
 
 - Node.js 18+
-- Python 3（用于本地静态服务）
-- 建议使用现代浏览器（Chrome / Edge / Safari 最新版）
+- Python 3
+- `curl`、`unzip`（用于数据脚本）
+- 推荐浏览器：Chrome / Edge / Safari 最新版
 
-### 5.2 本地运行
+### 本地运行
 
 ```bash
 git clone https://github.com/Sunny-1991/Centaline-Leading-Index.git
@@ -127,173 +70,115 @@ cd Centaline-Leading-Index
 python3 -m http.server 9013
 ```
 
-浏览器访问：
+浏览器访问：<http://127.0.0.1:9013>
 
-- <http://127.0.0.1:9013>
+> 不建议直接 `file://` 打开 `index.html`，可能触发浏览器资源限制。
 
-> 不建议直接用 `file://` 打开 `index.html`，可能触发资源加载限制。
+### 本地访问异常（代理 / VPN）
 
-### 5.3 本地访问排查（代理 / VPN 环境）
-
-如果服务已启动但浏览器打不开本地地址，通常是代理软件拦截了本地流量。可先用以下命令临时绕过代理启动服务：
+若服务已启动但浏览器无法访问本地地址，可先临时绕开代理环境变量：
 
 ```bash
 env -u HTTP_PROXY -u HTTPS_PROXY -u ALL_PROXY python3 -m http.server 9013 --bind 0.0.0.0
 ```
 
-访问地址：
-
-- 当前设备：<http://127.0.0.1:9013>
-- 局域网其他设备：<http://你的局域网IP:9013>
-
----
-
-## 6. 页面使用流程
-
-1. 选择数据源（中原 / 统计局）
-2. 勾选城市（最多 6 个）
-3. 选择起止时间
-4. 点击“一键生成”
-5. 按需开启“累计跌幅”与“表格汇总”
-6. 使用图表下方时间滑块做区间微调
-7. 右上角导出标准图或超清图
-
----
-
-## 7. 数据更新说明
-
-### 7.1 香港月度数据（可选补充）
+连通性自检：
 
 ```bash
-node scripts/fetch-hk-centaline-monthly.mjs
+curl --noproxy '*' -I http://127.0.0.1:9013
 ```
 
-产物：`hk-centaline-monthly.json`
+## 使用流程
 
-### 7.2 中原主数据（Excel 提取）
+1. 选择数据源（中原 / 统计局）。
+2. 选择城市（最多 6 个）。
+3. 选择起止时间并点击“一键生成”。
+4. 按需开启“累计跌幅”与“表格汇总”。
+5. 使用图下滑块微调区间。
+6. 导出标准图或超清图。
+
+## 数据更新与脚本
+
+> 项目无构建步骤，数据更新后可直接刷新页面验证。
+
+| 任务 | 命令 | 主要产物 |
+| --- | --- | --- |
+| 抓取香港中原月度数据（可选） | `node scripts/fetch-hk-centaline-monthly.mjs` | `hk-centaline-monthly.json` |
+| 从 Excel 提取中原主数据 | `node scripts/extract-house-price-data.mjs <excel-file.xlsx>` | `house-price-data.js` / `house-price-data.json` |
+| 抓取并构建 NBS 70 城链式数据 | `node scripts/fetch-nbs-70city-secondhand.mjs` | `house-price-data-nbs-70.js` / `house-price-data-nbs-70.json` |
+| 审计 NBS 链式一致性（只校验不改值） | `node scripts/audit-nbs-70city-secondhand.mjs house-price-data-nbs-70.json /tmp/nbs-audit-report.json` | `/tmp/nbs-audit-report.json` |
+| 重建楷体子集字体（性能优化） | `python3 scripts/build-stkaiti-subset.py` | `fonts/STKaiti-subset.woff2` / `fonts/STKaiti-subset-chars.txt` |
+
+### NBS 脚本可选环境变量
+
+- `NBS_OUTPUT_MIN_MONTH`：输出起始月（如 `2006-01`）
+- `NBS_OUTPUT_BASE_MONTH`：统一定基月（如 `2006-01`）
+- `NBS_OUTPUT_MAX_MONTH`：输出截止月（默认当前 UTC 月）
+
+示例：
 
 ```bash
-node scripts/extract-house-price-data.mjs <excel-file.xlsx>
-```
-
-产物：
-
-- `house-price-data.js`
-- `house-price-data.json`
-
-### 7.3 统计局 70 城抓取与构建
-
-```bash
+NBS_OUTPUT_MIN_MONTH=2008-01 \
+NBS_OUTPUT_BASE_MONTH=2008-01 \
+NBS_OUTPUT_MAX_MONTH=2026-01 \
 node scripts/fetch-nbs-70city-secondhand.mjs
 ```
 
-产物：
+## 自动化月更（GitHub Actions）
 
-- `house-price-data-nbs-70.js`
-- `house-price-data-nbs-70.json`
+工作流：`.github/workflows/auto-update-nbs-data.yml`
 
-### 7.4 统计局 70 城一致性核查（只审计，不改值）
+- 定时：每月 **UTC 02:30（6号）**
+- 也支持手动 `workflow_dispatch`
+- 自动流程只覆盖 NBS 数据：
+  1. 运行 `node scripts/fetch-nbs-70city-secondhand.mjs`
+  2. 检测 `house-price-data-nbs-70.js/.json` 是否有变化
+  3. 有变化才自动提交并推送
 
-```bash
-node scripts/audit-nbs-70city-secondhand.mjs house-price-data-nbs-70.json /tmp/nbs-audit-report.json
+> 中原付费数据仍建议手动更新并复核。
+
+## 项目结构
+
+```text
+Centaline-Leading-Index/
+├── index.html
+├── style.css
+├── app.js
+├── house-price-data.js
+├── house-price-data.json
+├── house-price-data-nbs-70.js
+├── house-price-data-nbs-70.json
+├── hk-centaline-monthly.json
+├── fonts/
+├── scripts/
+├── vendor/
+├── .github/workflows/auto-update-nbs-data.yml
+├── README.md
+└── README.en.md
 ```
 
-说明：
+## 常见问题（FAQ）
 
-- 逐年回查国家统计局接口（`A010807`），核对本地链式序列是否与源值一致
-- 输出长直线区间、单月大幅波动、源端 `0` 占位值、缺失值补位点
-- `mismatchCount > 0` 时脚本会返回非零退出码，便于 CI/巡检告警
+### 页面一直显示“正在加载数据...”
 
-### 7.5 楷体子集字体重建（性能优化）
+- 请通过 `http://` 访问，不要直接 `file://` 打开。
+- 检查 `house-price-data*.js` 文件是否完整且可加载。
 
-```bash
-python3 scripts/build-stkaiti-subset.py
-```
+### 为什么“跨源对比”是灰色？
 
-产物：
+- 仅在单选城市时可用。
+- 城市需属于：北京、上海、广州、深圳、天津。
 
-- `fonts/STKaiti-subset.woff2`
-- `fonts/STKaiti-subset-chars.txt`
+### 为什么“累计跌幅”按钮不可用？
 
-说明：
+- 仅当当前序列最新值较历史峰值回撤超过阈值时开放。
 
-- 脚本会从 `index.html`、`app.js`、`style.css` 与数据文件提取字形集合，再生成子集字体
-- 如缺依赖，请先执行：`python3 -m pip install --user fonttools brotli`
+### 明明有自动更新，为什么仍是静态站点？
 
----
+- 自动更新只是在仓库里离线更新数据文件。
+- 页面运行时仍是纯静态资源加载，不依赖后端接口。
 
-## 8. 统计局自动月更（GitHub Actions）
+## 合规与声明
 
-工作流文件：
-
-- `.github/workflows/auto-update-nbs-data.yml`
-
-触发方式：
-
-- 每月定时执行（UTC）
-- 手动触发 `workflow_dispatch`
-
-行为：
-
-1. 执行 `node scripts/fetch-nbs-70city-secondhand.mjs`
-2. 检测数据文件是否变化
-3. 有变化才自动提交并推送
-
-自动更新覆盖统计局数据；中原付费数据建议继续人工更新。
-
----
-
-## 9. 部署建议
-
-### 9.1 GitHub Pages
-
-本项目是纯静态站点，推送到仓库分支后即可部署。
-
-至少保证以下文件位于站点根目录并可访问：
-
-- `index.html`
-- `style.css`
-- `app.js`
-- `house-price-data.js`
-- `house-price-data-nbs-70.js`
-- `vendor/echarts.min.js`
-- `fonts/STKaiti-subset.woff2`
-
-### 9.2 缓存刷新
-
-样式或脚本变更后，如页面未及时生效：
-
-- 强制刷新：`Cmd/Ctrl + Shift + R`
-- 或更新 `index.html` 中资源版本参数（`?v=...`）
-
----
-
-## 10. 常见问题（FAQ）
-
-### Q1：页面一直显示“正在加载数据...”
-
-- 请确认通过 `http://` 访问，而不是 `file://`
-- 请确认 `house-price-data*.js` 文件存在且内容完整
-
-### Q2：导出图与页面显示不一致
-
-- 先点击“一键生成”后再导出
-- 导出基于当前选择状态（城市、区间、分析开关）
-
-### Q3：为什么有自动月更还叫静态网页？
-
-- 自动月更只是“离线更新仓库数据文件”
-- 页面运行时依然只加载静态 JS/JSON 文件，不依赖后端 API
-
-### Q4：本地已启动服务但页面仍打不开？
-
-- 先检查代理规则，确保 `localhost`、`127.0.0.1` 与局域网网段走直连。
-- 用命令行验证服务是否可达：`curl --noproxy '*' -I http://127.0.0.1:9013`。
-- 若命令可达而浏览器不可达，通常是浏览器代理规则未直连本地地址。
-
----
-
-## 11. 合规与声明
-
-- 数据可能受来源平台授权规则约束，请在合法合规前提下使用。
-- 本项目主要用于研究、分析与交流，不构成投资或交易建议。
+- 数据可能受来源平台授权与使用规则约束，请在合规前提下使用。
+- 本项目用于研究、分析与交流，不构成投资建议。
