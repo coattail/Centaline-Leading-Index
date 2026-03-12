@@ -3,10 +3,10 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>中原领先指数 | 中国二手房价格分析平台</title>
+    <title>中原领先指数 | 中国二手房价格分析体验区</title>
     <meta
       name="description"
-      content="一个面向研究、内容创作与市场跟踪的中国二手房价格分析平台，支持双数据源切换、区间定基、跨源对比、回撤分析与高清导出。"
+      content="中国二手房价格分析体验区，支持双数据源切换、区间定基、跨源对比与回撤分析，适合研究、汇报与内容展示。"
     />
     <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
     <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
@@ -29,10 +29,10 @@
       type="font/woff2"
       crossorigin
     />
-    <link rel="stylesheet" href="style.css?v=20260313-product-page" />
+    <link rel="stylesheet" href="style.css?v=20260313-experience" />
     <script defer src="vendor/echarts.min.js"></script>
     <script defer src="house-price-data.js"></script>
-    <script defer src="app.js?v=20260313-product-page-stats"></script>
+    <script defer src="app.js?v=20260313-experience"></script>
   </head>
   <body>
     <main class="page">
@@ -51,185 +51,17 @@
                 </span>
               </div>
             </div>
-            <h1>把中国二手房价格研究，做成一个能直接展示与分享的产品页</h1>
+            <h1>中国二手房价格分析体验区</h1>
             <p class="hero-lead">
-              聚合中原领先指数与国家统计局 70 城序列，帮助研究者、内容团队和市场跟踪者在一页内完成选城、定基、对比、回撤分析与高清导出。
+              直接选择数据源、城市和时间区间，生成适合研究、汇报和分享的走势图，保留双源切换、定基、跨源对比与回撤分析能力。
             </p>
-
-            <div class="hero-stat-grid" aria-label="产品关键指标">
-              <article class="hero-stat-card">
-                <span class="hero-stat-value" id="heroSourceCount">2</span>
-                <span class="hero-stat-label">套指数体系</span>
-              </article>
-              <article class="hero-stat-card">
-                <span class="hero-stat-value" id="heroCityCoverage">71</span>
-                <span class="hero-stat-label">座城市覆盖</span>
-              </article>
-              <article class="hero-stat-card">
-                <span class="hero-stat-value" id="heroLatestMonth">2026-01</span>
-                <span class="hero-stat-label">最新数据截至</span>
-              </article>
-            </div>
-
-            <div class="hero-actions">
-              <a class="hero-cta hero-cta-primary" href="#productExperience">立即体验</a>
-              <a class="hero-cta hero-cta-secondary" href="#productFeatures">查看能力</a>
-              <a
-                class="hero-link-btn"
-                href="https://github.com/coattail/Centaline-Leading-Index"
-                target="_blank"
-                rel="noreferrer"
-              >
-                查看 GitHub
-              </a>
-            </div>
-
             <p class="hero-coverage-note" id="heroCoverageText">
               支持 2006-01 起连续月度追踪，默认输出可直接用于研究展示与内容配图。
             </p>
             <p class="subtitle" id="sourceSubtitleText">数据来源：Wind、中原研究中心</p>
             <p class="subtitle credit">数据整合与图表制作：公众号 - 一座独立屋</p>
           </div>
-
-          <aside class="hero-panel" aria-label="产品概览">
-            <p class="hero-panel-kicker">产品定位</p>
-            <h2>研究型房价分析看板</h2>
-            <p class="hero-panel-text">
-              保留专业指标深度，同时具备官网级表达与可传播性，适合做市场观察、选题辅助和客户展示。
-            </p>
-            <ul class="hero-panel-list">
-              <li>双数据源切换与单城跨源对比</li>
-              <li>时间区间定基、滑块联动与回撤分析</li>
-              <li>响应式布局，适配桌面与移动端</li>
-              <li>纯静态站点，部署简单、维护成本低</li>
-            </ul>
-            <div class="hero-pill-row">
-              <span class="hero-pill">Static Site</span>
-              <span class="hero-pill">ECharts</span>
-              <span class="hero-pill">Monthly Update</span>
-              <span class="hero-pill">PNG Export</span>
-            </div>
-          </aside>
         </div>
-      </section>
-
-      <section class="product-strip" aria-label="产品价值">
-        <article class="strip-card">
-          <p class="strip-card-label">一页成型</p>
-          <h2>产品叙事与图表体验合并在同一首页</h2>
-          <p>
-            首先讲清楚价值、能力和适用场景，然后无缝进入在线体验区，适合直接对外展示或部署为 GitHub Pages。
-          </p>
-        </article>
-        <article class="strip-card">
-          <p class="strip-card-label">研究友好</p>
-          <h2>围绕真实分析动作设计，而不是只展示一张图</h2>
-          <p>
-            城市选择、时间定基、跨源比较、峰值回撤和图内汇总表都保留，让页面既能讲产品，也能真正拿来做分析。
-          </p>
-        </article>
-        <article class="strip-card">
-          <p class="strip-card-label">部署轻量</p>
-          <h2>不依赖后端接口，也不需要额外构建流程</h2>
-          <p>
-            数据文件更新后即可刷新页面验证，适合低运维成本的内容站、专题页或个人研究项目。
-          </p>
-        </article>
-      </section>
-
-      <section class="product-section" id="productFeatures">
-        <div class="section-heading">
-          <p class="eyebrow">Core Features</p>
-          <h2>这不是只有“好看”的页面，而是一套可直接使用的房价分析产品</h2>
-          <p>
-            首页文案强调价值，体验区保留深度交互，把产品化表达和真实分析动作整合在一起。
-          </p>
-        </div>
-        <div class="feature-grid">
-          <article class="feature-card">
-            <p class="feature-card-index">01</p>
-            <h3>双源统一体验</h3>
-            <p>在中原领先指数与统计局 70 城之间切换，并保持一致的筛选、定基和对比流程。</p>
-          </article>
-          <article class="feature-card">
-            <p class="feature-card-index">02</p>
-            <h3>单城跨源对比</h3>
-            <p>对北京、上海、广州、深圳、天津等重点城市做跨源观察，快速查看不同口径下的走势差异。</p>
-          </article>
-          <article class="feature-card">
-            <p class="feature-card-index">03</p>
-            <h3>区间重定基与回撤分析</h3>
-            <p>把任意起点设为 100，统一比较不同城市在同一观察窗口内的涨跌、峰值和累计回撤。</p>
-          </article>
-          <article class="feature-card">
-            <p class="feature-card-index">04</p>
-            <h3>高清导出与分享</h3>
-            <p>页面本身即为展示容器，生成后的图表可直接截图、导出，用于报告、文章或客户沟通材料。</p>
-          </article>
-        </div>
-      </section>
-
-      <section class="product-section product-section--contrast">
-        <div class="section-heading">
-          <p class="eyebrow">Use Cases</p>
-          <h2>适合这些高频使用场景</h2>
-          <p>当你既需要“讲清楚产品”，又需要“现场跑一遍数据”时，这个页面会比传统 dashboard 更完整。</p>
-        </div>
-        <div class="scenario-grid">
-          <article class="scenario-card">
-            <span class="scenario-tag">研究分析</span>
-            <h3>市场观察与周期判断</h3>
-            <p>用统一起点比较不同城市的修复节奏，再结合回撤区间判断冷热切换和周期位置。</p>
-          </article>
-          <article class="scenario-card">
-            <span class="scenario-tag">内容创作</span>
-            <h3>公众号 / 报告 / 演示配图</h3>
-            <p>生成图区后可直接作为文章头图、正文图或专题配图，减少额外排版和重绘工作。</p>
-          </article>
-          <article class="scenario-card">
-            <span class="scenario-tag">客户展示</span>
-            <h3>专题页与轻量官网</h3>
-            <p>把仓库部署到静态托管平台后，这一页就同时承担产品说明、功能演示和数据体验的入口。</p>
-          </article>
-        </div>
-      </section>
-
-      <section class="product-section product-section--split">
-        <div class="section-heading">
-          <p class="eyebrow">Data & Build</p>
-          <h2>数据可信、结构透明，适合长期维护</h2>
-          <p>页面前台是纯静态，数据更新在离线脚本和仓库自动化里完成，既轻量，也便于持续迭代。</p>
-        </div>
-        <div class="split-grid">
-          <article class="info-card">
-            <p class="info-card-label">数据层</p>
-            <h3>中原领先指数 + 国家统计局 70 城</h3>
-            <p>前端直接读取本地 `JS/JSON` 数据文件，不依赖运行时后端接口，部署后更稳定、也更容易缓存。</p>
-            <ul class="info-card-list">
-              <li>中原口径适合重点城市研究</li>
-              <li>统计局口径适合广覆盖横向比较</li>
-              <li>香港中原月度数据可选合并</li>
-            </ul>
-          </article>
-          <article class="info-card">
-            <p class="info-card-label">工程层</p>
-            <h3>纯静态架构，便于托管与自动更新</h3>
-            <p>保留 `index.html + style.css + app.js` 的无构建结构，适合作为 GitHub Pages、专题页或内部轻应用发布。</p>
-            <ul class="info-card-list">
-              <li>无框架、无打包、无运行时 API</li>
-              <li>适合低成本维护和快速二次开发</li>
-              <li>可继续扩展脚本化月更流程</li>
-            </ul>
-          </article>
-        </div>
-      </section>
-
-      <section class="experience-intro" id="productExperience">
-        <p class="eyebrow">Interactive Workspace</p>
-        <h2>在线体验区</h2>
-        <p>
-          直接选择数据源、城市和时间区间，生成适合研究、汇报和分享的走势图。下面保留了你原来的完整分析能力。
-        </p>
       </section>
 
       <section class="workspace">
