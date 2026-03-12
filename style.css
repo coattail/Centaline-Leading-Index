@@ -251,7 +251,7 @@ body.theme-dark .city-list::-webkit-scrollbar-thumb {
   border: 1px solid var(--line);
   background: linear-gradient(145deg, rgba(255, 255, 255, 0.92), rgba(239, 248, 255, 0.82));
   border-radius: 20px;
-  padding: 22px 28px 18px;
+  padding: 16px 24px 14px;
   box-shadow: var(--shadow);
 }
 
@@ -275,23 +275,23 @@ body.theme-dark .city-list::-webkit-scrollbar-thumb {
 }
 
 .hero h1 {
-  margin: 8px 0 0;
-  font-size: clamp(1.86rem, 3.5vw, 3.15rem);
+  margin: 6px 0 0;
+  font-size: clamp(1.56rem, 3vw, 2.7rem);
   font-family: var(--display-font);
   font-weight: 500;
   color: var(--title);
   letter-spacing: 0.01em;
-  line-height: 1.04;
+  line-height: 1.02;
 }
 
 .subtitle {
-  margin: 5px 0 0;
+  margin: 0;
   color: var(--soft);
-  line-height: 1.48;
+  line-height: 1.4;
 }
 
 .subtitle.credit {
-  margin-top: 1px;
+  margin-top: 0;
 }
 
 .hero-shell {
@@ -311,19 +311,13 @@ body.theme-dark .city-list::-webkit-scrollbar-thumb {
   gap: 14px;
 }
 
-.hero-lead {
-  margin: 14px 0 0;
-  max-width: 760px;
-  font-size: 0.98rem;
-  line-height: 1.68;
-  color: var(--text);
-}
-
-.hero-coverage-note {
-  margin: 14px 0 0;
-  font-size: 0.85rem;
-  line-height: 1.52;
-  color: var(--soft);
+.hero-meta {
+  margin-top: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 18px;
+  align-items: center;
+  font-size: 0.82rem;
 }
 
 .hero-theme-float {
@@ -387,11 +381,7 @@ body.theme-dark .city-list::-webkit-scrollbar-thumb {
 }
 
 .hero-copy > .subtitle {
-  max-width: 760px;
-}
-
-.hero-copy > .subtitle.credit {
-  margin-top: 3px;
+  max-width: none;
 }
 
 .workspace {
@@ -1353,7 +1343,7 @@ thead th {
   }
 
   .hero {
-    padding: 14px 16px;
+    padding: 13px 16px 12px;
     border-radius: 16px;
   }
 
@@ -1367,17 +1357,21 @@ thead th {
   }
 
   .hero h1 {
-    font-size: clamp(1.6rem, 7vw, 2.28rem);
-    line-height: 1.1;
-  }
-
-  .hero-lead {
-    font-size: 0.9rem;
-    line-height: 1.6;
+    font-size: clamp(1.42rem, 6vw, 2.04rem);
+    line-height: 1.06;
   }
 
   .hero-theme-float {
     gap: 8px;
+  }
+
+  .hero-meta {
+    margin-top: 8px;
+    gap: 6px;
+  }
+
+  .subtitle {
+    font-size: 0.78rem;
   }
 
   .hero-theme-caption {
@@ -1573,7 +1567,7 @@ thead th {
   }
 
   .hero {
-    padding: 12px;
+    padding: 11px 12px 10px;
     border-radius: 14px;
   }
 
@@ -1604,18 +1598,12 @@ thead th {
   }
 
   .hero h1 {
-    font-size: 1.42rem;
+    font-size: 1.26rem;
   }
 
   .subtitle {
-    font-size: 0.8rem;
-    line-height: 1.42;
-  }
-
-  .hero-lead,
-  .hero-coverage-note {
-    font-size: 0.8rem;
-    line-height: 1.52;
+    font-size: 0.74rem;
+    line-height: 1.36;
   }
 
   .controls,
