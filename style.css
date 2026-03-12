@@ -251,7 +251,7 @@ body.theme-dark .city-list::-webkit-scrollbar-thumb {
   border: 1px solid var(--line);
   background: linear-gradient(145deg, rgba(255, 255, 255, 0.92), rgba(239, 248, 255, 0.82));
   border-radius: 20px;
-  padding: 28px 28px 24px;
+  padding: 22px 28px 18px;
   box-shadow: var(--shadow);
 }
 
@@ -275,23 +275,23 @@ body.theme-dark .city-list::-webkit-scrollbar-thumb {
 }
 
 .hero h1 {
-  margin: 12px 0 0;
-  font-size: clamp(2rem, 4vw, 3.55rem);
+  margin: 8px 0 0;
+  font-size: clamp(1.86rem, 3.5vw, 3.15rem);
   font-family: var(--display-font);
   font-weight: 500;
   color: var(--title);
   letter-spacing: 0.01em;
-  line-height: 1.08;
+  line-height: 1.04;
 }
 
 .subtitle {
-  margin: 7px 0 0;
+  margin: 5px 0 0;
   color: var(--soft);
-  line-height: 1.58;
+  line-height: 1.48;
 }
 
 .subtitle.credit {
-  margin-top: 2px;
+  margin-top: 1px;
 }
 
 .hero-shell {
@@ -314,15 +314,15 @@ body.theme-dark .city-list::-webkit-scrollbar-thumb {
 .hero-lead {
   margin: 14px 0 0;
   max-width: 760px;
-  font-size: 1.02rem;
-  line-height: 1.82;
+  font-size: 0.98rem;
+  line-height: 1.68;
   color: var(--text);
 }
 
 .hero-coverage-note {
-  margin: 18px 0 0;
-  font-size: 0.88rem;
-  line-height: 1.65;
+  margin: 14px 0 0;
+  font-size: 0.85rem;
+  line-height: 1.52;
   color: var(--soft);
 }
 
@@ -1353,7 +1353,7 @@ thead th {
   }
 
   .hero {
-    padding: 16px;
+    padding: 14px 16px;
     border-radius: 16px;
   }
 
@@ -1367,13 +1367,13 @@ thead th {
   }
 
   .hero h1 {
-    font-size: clamp(1.72rem, 8vw, 2.48rem);
-    line-height: 1.14;
+    font-size: clamp(1.6rem, 7vw, 2.28rem);
+    line-height: 1.1;
   }
 
   .hero-lead {
-    font-size: 0.94rem;
-    line-height: 1.72;
+    font-size: 0.9rem;
+    line-height: 1.6;
   }
 
   .hero-theme-float {
@@ -1573,7 +1573,7 @@ thead th {
   }
 
   .hero {
-    padding: 12px 12px;
+    padding: 12px;
     border-radius: 14px;
   }
 
@@ -1604,18 +1604,18 @@ thead th {
   }
 
   .hero h1 {
-    font-size: 1.56rem;
+    font-size: 1.42rem;
   }
 
   .subtitle {
-    font-size: 0.82rem;
-    line-height: 1.5;
+    font-size: 0.8rem;
+    line-height: 1.42;
   }
 
   .hero-lead,
   .hero-coverage-note {
-    font-size: 0.84rem;
-    line-height: 1.62;
+    font-size: 0.8rem;
+    line-height: 1.52;
   }
 
   .controls,
