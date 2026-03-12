@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>房价可视化</title>
+    <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
+    <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
+    <link
+      rel="preload"
+      href="https://fonts.googleapis.com/css2?family=Marcellus&family=Noto+Sans+SC:wght@400;500;700&display=swap"
+      as="style"
+      onload="this.onload=null;this.rel='stylesheet'"
+    />
+    <noscript>
+      <link
+        href="https://fonts.googleapis.com/css2?family=Marcellus&family=Noto+Sans+SC:wght@400;500;700&display=swap"
+        rel="stylesheet"
+      />
+    </noscript>
+    <link
+      rel="preload"
+      href="./fonts/STKaiti-subset.woff2?v=20260305-font-subset"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <link rel="stylesheet" href="style.css?v=20260303-theme-layout-align-fix" />
+    <script defer src="vendor/echarts.min.js"></script>
+    <script defer src="house-price-data.js"></script>
+    <script defer src="app.js?v=20260304-zoom-yaxis-live-sync"></script>
+  </head>
+  <body>
+    <main class="page">
+      <section class="hero">
+        <p class="eyebrow">Centaline Leading Index</p>
+        <h1>房价可视化</h1>
+        <p class="subtitle" id="sourceSubtitleText">数据来源：Wind、中原研究中心</p>
+        <p class="subtitle credit">数据整合与图表制作：公众号 - 一座独立屋</p>
+        <div class="hero-theme-float">
+          <span class="hero-theme-caption">页面风格</span>
+          <span class="hero-theme-select-wrap">
+            <select id="themeMode" class="hero-theme-select" aria-label="页面风格选择">
+              <option value="light">浅色</option>
+              <option value="dark">深色</option>
+            </select>
+          </span>
+        </div>
+      </section>
+
+      <section class="workspace">
+        <aside class="controls">
+          <h2>设置</h2>
+
+          <div class="control-block control-block--loose-select">
+            <h3>数据源</h3>
+            <label>
+              <select id="dataSource" aria-label="数据源选择"></select>
+            </label>
+          </div>
+
+          <div class="control-block">
+            <div class="block-head">
+              <h3 id="cityBlockTitle">城市（可选多至6个）</h3>
+              <div class="inline-actions">
+                <button id="selectAllBtn" type="button">全选</button>
+                <button id="clearAllBtn" type="button">清空</button>
+              </div>
+            </div>
+            <div id="citySearchWrap" class="city-search-wrap is-hidden">
+              <input
+                id="citySearchInput"
+                class="asset-search city-search-input"
+                type="search"
+                placeholder="搜索城市或省份"
+                aria-label="搜索城市或省份"
+                autocomplete="off"
+              />
+              <p id="citySearchHint" class="analysis-hint city-search-hint"></p>
+            </div>
+            <div id="cityList" class="city-list" aria-label="城市选择"></div>
+          </div>
+
+          <div class="control-block control-block--time-compact">
+            <h3>时间区间</h3>
+            <div class="date-grid date-grid--compact">
+              <label class="date-field-compact">
+                起点
+                <select id="startMonth"></select>
+              </label>
+              <label class="date-field-compact">
+                终点
+                <select id="endMonth"></select>
+              </label>
+            </div>
+          </div>
+
+          <div class="control-block">
+            <h3>跨源对比</h3>
+            <label>
+              对比数据源
+              <select id="compareSource" aria-label="跨源对比数据源" disabled>
+                <option value="none">不对比</option>
+              </select>
+            </label>
+            <p class="analysis-hint" id="compareHint">仅在单选北上广深天津时可开启对比</p>
+          </div>
+
+          <div class="control-block">
+            <h3>累计跌幅</h3>
+            <button id="drawdownBtn" class="analysis-btn" type="button" disabled>
+              累计跌幅（关闭）
+            </button>
+            <button id="chartTableBtn" class="analysis-btn sub" type="button" disabled>
+              表格汇总（关闭）
+            </button>
+            <p class="analysis-hint">当最新值较历史峰值回撤超过 10% 时可开启</p>
+          </div>
+
+          <div class="control-block actions">
+            <button id="renderBtn" class="primary-btn" type="button">一键生成</button>
+            <p id="statusText" class="status">正在加载数据...</p>
+          </div>
+        </aside>
+
+        <section class="chart-zone">
+          <div class="chart-head">
+            <h2 id="chartTitle">热点城市二手房价格走势图</h2>
+            <p id="chartMeta">-</p>
+          </div>
+          <div class="chart-stage">
+            <div id="chart" class="chart" role="img" aria-label="房价走势折线图"></div>
+            <div id="chartStatsOverlay" class="chart-stats-overlay" aria-hidden="true"></div>
+          </div>
+          <div class="timeline-zoom-widget" id="timeZoomWidget" aria-label="时间区间滑块">
+            <div class="timeline-zoom-summary" id="timeZoomRangeText">-</div>
+            <div class="timeline-zoom-slider">
+              <div class="timeline-zoom-track">
+                <span class="timeline-zoom-rail" aria-hidden="true"></span>
+                <span class="timeline-zoom-fill" id="timeZoomFill" aria-hidden="true"></span>
+                <input
+                  id="timeZoomStart"
+                  class="timeline-zoom-input timeline-zoom-input--start"
+                  type="range"
+                  min="0"
+                  max="0"
+                  step="1"
+                  value="0"
+                  aria-label="时间区间起点"
+                />
+                <input
+                  id="timeZoomEnd"
+                  class="timeline-zoom-input timeline-zoom-input--end"
+                  type="range"
+                  min="0"
+                  max="0"
+                  step="1"
+                  value="0"
+                  aria-label="时间区间终点"
+                />
+              </div>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>城市</th>
+                  <th>起点指数</th>
+                  <th>区间峰值</th>
+                  <th>最新指数</th>
+                  <th>环比涨幅</th>
+                  <th>同比涨幅</th>
+                  <th>较峰值回撤</th>
+                </tr>
+              </thead>
+              <tbody id="summaryBody"></tbody>
+            </table>
+          </div>
+          <p class="footnote" id="footnoteText"></p>
+        </section>
+      </section>
+    </main>
+  </body>
+</html>
