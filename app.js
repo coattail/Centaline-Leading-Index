@@ -56,6 +56,10 @@ const timeZoomFillEl = document.getElementById("timeZoomFill");
 const timeZoomStartEl = document.getElementById("timeZoomStart");
 const timeZoomEndEl = document.getElementById("timeZoomEnd");
 const sourceSubtitleEl = document.getElementById("sourceSubtitleText");
+const heroSourceCountEl = document.getElementById("heroSourceCount");
+const heroCityCoverageEl = document.getElementById("heroCityCoverage");
+const heroLatestMonthEl = document.getElementById("heroLatestMonth");
+const heroCoverageTextEl = document.getElementById("heroCoverageText");
 const THEME_MODE_STORAGE_KEY = "house-price-theme-mode";
 const THEME_MODE_LIGHT = "light";
 const THEME_MODE_DARK = "dark";
@@ -662,6 +666,61 @@ function listLoadedSources() {
   return SOURCE_CONFIGS.filter((source) => Boolean(getSourceData(source)));
 }
 
+function summarizeLoadedSources() {
+  const sources = listLoadedSources();
+  const cityNames = new Set();
+  const months = [];
+
+  sources.forEach((source) => {
+    const data = getSourceData(source);
+    if (!data) return;
+    if (Array.isArray(data.cities)) {
+      data.cities.forEach((city) => {
+        const name = String(city?.name || "").trim();
+        if (name) cityNames.add(name);
+      });
+    }
+    if (Array.isArray(data.dates)) {
+      data.dates.forEach((month) => {
+        const token = normalizeMonthToken(month);
+        if (token) months.push(token);
+      });
+    }
+  });
+
+  months.sort((left, right) => left.localeCompare(right));
+
+  return {
+    sourceCount: sources.length,
+    cityCount: cityNames.size,
+    earliestMonth: months[0] || "",
+    latestMonth: months[months.length - 1] || "",
+  };
+}
+
+function updateProductHeroStats() {
+  if (!heroSourceCountEl && !heroCityCoverageEl && !heroLatestMonthEl && !heroCoverageTextEl) {
+    return;
+  }
+
+  const selectableSourceCount = listSelectableSources().length;
+  const summary = summarizeLoadedSources();
+  if (heroSourceCountEl && selectableSourceCount > 0) {
+    heroSourceCountEl.textContent = String(selectableSourceCount);
+  }
+  if (summary.sourceCount < selectableSourceCount) return;
+  if (heroCityCoverageEl && summary.cityCount > 0) {
+    heroCityCoverageEl.textContent = String(summary.cityCount);
+  }
+  if (heroLatestMonthEl && summary.latestMonth) {
+    heroLatestMonthEl.textContent = summary.latestMonth;
+  }
+  if (heroCoverageTextEl && summary.earliestMonth && summary.latestMonth) {
+    heroCoverageTextEl.textContent =
+      `支持 ${summary.earliestMonth} 至 ${summary.latestMonth} 的连续月度追踪，默认输出可直接用于研究展示与内容配图。`;
+  }
+}
+
 function findSourceByKey(sourceKey, { loadedOnly = false } = {}) {
   const sourceList = loadedOnly ? listLoadedSources() : listSelectableSources();
   const matched = sourceList.find((source) => source.key === sourceKey);
@@ -743,6 +802,7 @@ function warmupSourceDataInBackground(activeKey) {
       ensureSourceDataLoaded(source)
         .then((loadedData) => {
           if (!loadedData) return;
+          updateProductHeroStats();
           if (activeSourceMeta?.key === activeKey) {
             refreshCompareSourceControl({ keepSelection: true });
           }
@@ -5001,6 +5061,7 @@ async function init() {
     return;
   }
 
+  updateProductHeroStats();
   bindEvents();
   bindChartWheelToPageScroll();
   if (!areChartFontsLoaded()) {
