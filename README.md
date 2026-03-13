@@ -1,6 +1,6 @@
 # 房价可视化仪表盘（Centaline-Leading-Index）
 
-[![NBS Auto Update](https://github.com/Sunny-1991/Centaline-Leading-Index/actions/workflows/auto-update-nbs-data.yml/badge.svg)](https://github.com/Sunny-1991/Centaline-Leading-Index/actions/workflows/auto-update-nbs-data.yml)
+[![NBS Auto Update](https://github.com/coattail/Centaline-Leading-Index/actions/workflows/auto-update-nbs-data.yml/badge.svg)](https://github.com/coattail/Centaline-Leading-Index/actions/workflows/auto-update-nbs-data.yml)
 ![Static Site](https://img.shields.io/badge/Architecture-Static%20Site-0ea5e9)
 ![ECharts 5](https://img.shields.io/badge/Chart-ECharts%205-22c55e)
 
@@ -65,7 +65,7 @@
 ### 本地运行
 
 ```bash
-git clone https://github.com/Sunny-1991/Centaline-Leading-Index.git
+git clone https://github.com/coattail/Centaline-Leading-Index.git
 cd Centaline-Leading-Index
 python3 -m http.server 9013
 ```
