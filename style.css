@@ -307,12 +307,18 @@ body.theme-dark .city-list::-webkit-scrollbar-thumb {
 .hero-topline {
   display: flex;
   align-items: center;
+  justify-content: flex-start;
+}
+
+.hero-bottomline {
+  margin-top: 10px;
+  display: flex;
   justify-content: space-between;
-  gap: 14px;
+  align-items: flex-end;
+  gap: 16px;
 }
 
 .hero-meta {
-  margin-top: 10px;
   display: flex;
   flex-wrap: wrap;
   gap: 8px 18px;
@@ -325,6 +331,7 @@ body.theme-dark .city-list::-webkit-scrollbar-thumb {
   align-items: center;
   gap: 10px;
   flex-shrink: 0;
+  justify-content: flex-end;
 }
 
 .hero-theme-caption {
@@ -1356,6 +1363,12 @@ thead th {
     align-items: flex-start;
   }
 
+  .hero-bottomline {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
   .hero h1 {
     font-size: clamp(1.42rem, 6vw, 2.04rem);
     line-height: 1.06;
@@ -1363,6 +1376,7 @@ thead th {
 
   .hero-theme-float {
     gap: 8px;
+    align-self: flex-end;
   }
 
   .hero-meta {
