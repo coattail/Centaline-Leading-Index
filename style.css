@@ -302,6 +302,7 @@ body.theme-dark .city-list::-webkit-scrollbar-thumb {
 .hero-copy {
   position: relative;
   z-index: 1;
+  padding-right: 208px;
 }
 
 .hero-topline {
@@ -312,13 +313,10 @@ body.theme-dark .city-list::-webkit-scrollbar-thumb {
 
 .hero-bottomline {
   margin-top: 10px;
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
-  gap: 16px;
 }
 
 .hero-meta {
+  max-width: calc(100% - 228px);
   display: flex;
   flex-wrap: wrap;
   gap: 8px 18px;
@@ -327,6 +325,9 @@ body.theme-dark .city-list::-webkit-scrollbar-thumb {
 }
 
 .hero-theme-float {
+  position: absolute;
+  right: 0;
+  bottom: 0;
   display: flex;
   align-items: center;
   gap: 10px;
@@ -1363,7 +1364,13 @@ thead th {
     align-items: flex-start;
   }
 
+  .hero-copy {
+    padding-right: 0;
+  }
+
   .hero-bottomline {
+    display: flex;
+    margin-top: 8px;
     flex-direction: column;
     align-items: flex-start;
     gap: 8px;
@@ -1375,11 +1382,13 @@ thead th {
   }
 
   .hero-theme-float {
+    position: static;
     gap: 8px;
     align-self: flex-end;
   }
 
   .hero-meta {
+    max-width: none;
     margin-top: 8px;
     gap: 6px;
   }
