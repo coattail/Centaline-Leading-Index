@@ -1704,11 +1704,11 @@ function buildMonthSelects(dates) {
   populateSelectOptions(startMonthEl, options);
   populateSelectOptions(endMonthEl, options);
 
-  const isNbsSource = activeSourceMeta?.key === "nbs70";
-  const defaultStart = isNbsSource
-    ? dates[0]
+  const preferredBaseMonth = normalizeMonthToken(raw?.baseMonth) || "2008-01";
+  const defaultStart = dates.includes(preferredBaseMonth)
+    ? preferredBaseMonth
     : (dates.includes("2008-01") ? "2008-01" : dates[0]);
-  const defaultEnd = dates.includes("2026-01") ? "2026-01" : dates[dates.length - 1];
+  const defaultEnd = dates[dates.length - 1];
   startMonthEl.value = defaultStart;
   endMonthEl.value = defaultEnd;
   syncTimeZoomWidgetFromMonthSelects();
@@ -4982,7 +4982,7 @@ async function init() {
     return;
   }
 
-  applyThemeMode(readStoredThemeMode(), { persist: false, rerender: false });
+  applyThemeMode(THEME_MODE_LIGHT, { persist: false, rerender: false });
 
   populateSourceSelector(selectableSources);
   const defaultSource =
