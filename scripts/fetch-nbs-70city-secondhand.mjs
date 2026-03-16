@@ -25,6 +25,27 @@ function roundTo(value, digits = 6) {
   return Number(value.toFixed(digits));
 }
 
+function decodeHtmlEntities(text) {
+  return String(text || "")
+    .replace(/&nbsp;|&#160;/gi, " ")
+    .replace(/&#12288;|&emsp;/gi, " ")
+    .replace(/&amp;/gi, "&")
+    .replace(/&lt;/gi, "<")
+    .replace(/&gt;/gi, ">")
+    .replace(/&quot;/gi, '"')
+    .replace(/&#39;/gi, "'");
+}
+
+function stripHtml(text) {
+  return decodeHtmlEntities(String(text || "").replace(/<[^>]+>/g, ""))
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function normalizeCityName(name) {
+  return String(name || "").replace(/\u3000/g, "").replace(/\s+/g, "").trim();
+}
+
 function codeToMonth(code) {
   const text = String(code || "");
   if (!/^\d{6}$/.test(text)) return "";
@@ -110,6 +131,35 @@ async function requestJson(params, attempt = 1) {
   }
 }
 
+async function requestText(url, attempt = 1) {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+
+  try {
+    const response = await fetch(url, {
+      method: "GET",
+      headers: {
+        Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+        "User-Agent":
+          "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
+      },
+      signal: controller.signal,
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}`);
+    }
+
+    return await response.text();
+  } catch (error) {
+    if (attempt >= MAX_RETRIES) throw error;
+    await sleep(380 * attempt);
+    return requestText(url, attempt + 1);
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
 function parseNodeValue(node) {
   if (node?.data?.hasdata !== true) return null;
   const raw = node?.data?.data;
@@ -178,6 +228,39 @@ function buildAvailableRange(series, months) {
   return `${months[firstIndex]}:${months[lastIndex]}`;
 }
 
+function parseOfficialReleaseSecondhandMomTable(html) {
+  const tables = [...String(html || "").matchAll(/<table\b[\s\S]*?<\/table>/gi)];
+  const tableHtml = tables[1]?.[0];
+  if (!tableHtml) {
+    throw new Error("Cannot locate table 2 from official NBS release page.");
+  }
+
+  const rows = [...tableHtml.matchAll(/<tr\b[\s\S]*?<\/tr>/gi)];
+  const momByCity = new Map();
+
+  rows.slice(2).forEach((rowMatch) => {
+    const rowHtml = rowMatch[0];
+    const cells = [...rowHtml.matchAll(/<t[dh]\b[^>]*>([\s\S]*?)<\/t[dh]>/gi)].map((match) =>
+      stripHtml(match[1]),
+    );
+
+    if (cells.length !== 8) return;
+
+    [cells.slice(0, 4), cells.slice(4, 8)].forEach((group) => {
+      const city = normalizeCityName(group[0]);
+      const momValue = Number(group[1]);
+      if (!city || !Number.isFinite(momValue)) return;
+      momByCity.set(city, momValue);
+    });
+  });
+
+  if (momByCity.size !== 70) {
+    throw new Error(`Expected 70 cities from official release table 2, got ${momByCity.size}.`);
+  }
+
+  return momByCity;
+}
+
 async function main() {
   const __filename = fileURLToPath(import.meta.url);
   const __dirname = path.dirname(__filename);
@@ -190,6 +273,7 @@ async function main() {
   const requestedMaxMonth =
     normalizeMonthToken(process.env.NBS_OUTPUT_MAX_MONTH) || formatCurrentMonthUTC();
   const outputJsonPath = outputPath.replace(/\.js$/i, ".json");
+  const officialReleaseUrl = String(process.env.NBS_OFFICIAL_RELEASE_URL || "").trim();
   if (!outputMinMonth || !outputBaseMonth || !requestedMaxMonth) {
     throw new Error("Invalid month settings. Expected YYYY-MM format.");
   }
@@ -207,6 +291,7 @@ async function main() {
   const cityNameByCode = new Map();
   const momByCity = new Map();
   let latestMonthFromApi = null;
+  let latestMonthFromOfficialRelease = null;
 
   for (let year = startYear; year <= endYear; year += 1) {
     // eslint-disable-next-line no-console
@@ -253,7 +338,27 @@ async function main() {
     throw new Error("Cannot determine latest month from NBS API.");
   }
 
-  const outputMaxMonth = minMonth(requestedMaxMonth, latestMonthFromApi);
+  if (officialReleaseUrl && requestedMaxMonth > latestMonthFromApi) {
+    // Fallback for cases where the NBS release page is published before easyquery updates.
+    const officialHtml = await requestText(officialReleaseUrl);
+    const officialMomByCity = parseOfficialReleaseSecondhandMomTable(officialHtml);
+
+    cityOrder.forEach((regCode) => {
+      const cityName = cityNameByCode.get(regCode);
+      const normalizedName = normalizeCityName(cityName);
+      const momValue = officialMomByCity.get(normalizedName);
+      if (!Number.isFinite(momValue)) return;
+      if (!momByCity.has(regCode)) {
+        momByCity.set(regCode, new Map());
+      }
+      momByCity.get(regCode).set(requestedMaxMonth, momValue);
+    });
+
+    latestMonthFromOfficialRelease = requestedMaxMonth;
+  }
+
+  const latestAvailableMonth = latestMonthFromOfficialRelease || latestMonthFromApi;
+  const outputMaxMonth = minMonth(requestedMaxMonth, latestAvailableMonth);
   const months = enumerateMonths(outputMinMonth, outputMaxMonth);
   const baseMonthIndex = months.indexOf(outputBaseMonth);
   if (baseMonthIndex < 0) {
@@ -294,7 +399,7 @@ async function main() {
       availableRange: buildAvailableRange(chainedSeries, months),
       source: "国家统计局(data.stats.gov.cn)",
       frequency: "月",
-      updatedAt: latestMonthFromApi || outputMaxMonth,
+      updatedAt: latestAvailableMonth || outputMaxMonth,
       rebaseBaseMonth: outputBaseMonth,
       rebaseBaseValue: 100,
       regCode,
@@ -317,6 +422,8 @@ async function main() {
     requestedMaxMonth,
     outputMaxMonth,
     latestMonthFromApi,
+    latestMonthFromOfficialRelease,
+    officialReleaseUrl: officialReleaseUrl || null,
     excludedRegCodes: [...EXCLUDED_REG_CODES],
   };
 
