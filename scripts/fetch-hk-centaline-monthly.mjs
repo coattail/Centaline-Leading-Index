@@ -77,6 +77,13 @@ function toMonthlyLastValue(weeklyDates, weeklyValues, startMonth, endMonth) {
   return { months, monthly, monthToLast };
 }
 
+function formatCurrentMonthUTC() {
+  const now = new Date();
+  const year = now.getUTCFullYear();
+  const month = String(now.getUTCMonth() + 1).padStart(2, "0");
+  return `${year}-${month}`;
+}
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -84,7 +91,7 @@ const sourceUrl = process.argv[2] || "https://hk.centanet.com/CCI/zh-cn/index";
 const outputPath =
   process.argv[3] || path.resolve(__dirname, "..", "hk-centaline-monthly.json");
 const startMonth = process.argv[4] || "2005-01";
-const endMonth = process.argv[5] || "2026-01";
+const endMonth = process.argv[5] || formatCurrentMonthUTC();
 
 const html = fetchHtml(sourceUrl);
 const { dates: weeklyDates, values: weeklyValues } = parseNuxtData(html);
