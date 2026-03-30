@@ -1449,33 +1449,6 @@ function resolveXAxisLabelLayout(months, chartWidth, visibleStartIndex, visibleE
     .filter((index) => Number.isInteger(index))
     .sort((a, b) => a - b);
 
-  if (normalizedIndexes.length > 1 && span > 0) {
-    const pxPerMonth = plotWidth / span;
-    const minGapMonths = Math.max(1, Math.ceil(minGapPx / Math.max(pxPerMonth, 0.0001)));
-    const filtered = [];
-    for (const index of normalizedIndexes) {
-      if (filtered.length === 0) {
-        filtered.push(index);
-        continue;
-      }
-      const prev = filtered[filtered.length - 1];
-      if (index - prev >= minGapMonths) {
-        filtered.push(index);
-      }
-    }
-    if (filtered.length === 1 && safeEnd !== safeStart) {
-      filtered.push(safeEnd);
-    } else if (filtered.length > 1 && filtered[filtered.length - 1] !== safeEnd) {
-      const last = filtered[filtered.length - 1];
-      if (safeEnd - last < minGapMonths && filtered.length >= 2) {
-        filtered[filtered.length - 1] = safeEnd;
-      } else {
-        filtered.push(safeEnd);
-      }
-    }
-    normalizedIndexes = Array.from(new Set(filtered)).sort((a, b) => a - b);
-  }
-
   const finalVisibleIndexes = new Set(normalizedIndexes);
 
   const visibleValues = new Set();
