@@ -4,11 +4,18 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
+import {
+  applyOfficialRelease,
+  parseOfficialReleaseSecondhandMomTable,
+  parseReleaseListPage,
+} from "./nbs-release-utils.mjs";
+
 const API_URL = "https://data.stats.gov.cn/easyquery.htm";
 const DB_CODE = "csyd";
 const INDICATOR_ID = "A010807";
 const DEFAULT_OUTPUT_MIN_MONTH = "2006-01";
 const DEFAULT_OUTPUT_BASE_MONTH = "2006-01";
+const OFFICIAL_RELEASE_LIST_URL = "https://www.stats.gov.cn/sj/zxfb/";
 const REQUEST_TIMEOUT_MS = 20000;
 const MAX_RETRIES = 5;
 
@@ -23,27 +30,6 @@ function isFiniteNumber(value) {
 function roundTo(value, digits = 6) {
   if (!isFiniteNumber(value)) return null;
   return Number(value.toFixed(digits));
-}
-
-function decodeHtmlEntities(text) {
-  return String(text || "")
-    .replace(/&nbsp;|&#160;/gi, " ")
-    .replace(/&#12288;|&emsp;/gi, " ")
-    .replace(/&amp;/gi, "&")
-    .replace(/&lt;/gi, "<")
-    .replace(/&gt;/gi, ">")
-    .replace(/&quot;/gi, '"')
-    .replace(/&#39;/gi, "'");
-}
-
-function stripHtml(text) {
-  return decodeHtmlEntities(String(text || "").replace(/<[^>]+>/g, ""))
-    .replace(/\s+/g, " ")
-    .trim();
-}
-
-function normalizeCityName(name) {
-  return String(name || "").replace(/\u3000/g, "").replace(/\s+/g, "").trim();
 }
 
 function codeToMonth(code) {
@@ -228,62 +214,119 @@ function buildAvailableRange(series, months) {
   return `${months[firstIndex]}:${months[lastIndex]}`;
 }
 
-function parseOfficialReleaseSecondhandMomTable(html) {
-  const tables = [...String(html || "").matchAll(/<table\b[\s\S]*?<\/table>/gi)];
-  const tableHtml = tables[1]?.[0];
-  if (!tableHtml) {
-    throw new Error("Cannot locate table 2 from official NBS release page.");
-  }
-
-  const rows = [...tableHtml.matchAll(/<tr\b[\s\S]*?<\/tr>/gi)];
-  const momByCity = new Map();
-
-  rows.slice(2).forEach((rowMatch) => {
-    const rowHtml = rowMatch[0];
-    const cells = [...rowHtml.matchAll(/<t[dh]\b[^>]*>([\s\S]*?)<\/t[dh]>/gi)].map((match) =>
-      stripHtml(match[1]),
-    );
-
-    if (cells.length !== 8) return;
-
-    [cells.slice(0, 4), cells.slice(4, 8)].forEach((group) => {
-      const city = normalizeCityName(group[0]);
-      const momValue = Number(group[1]);
-      if (!city || !Number.isFinite(momValue)) return;
-      momByCity.set(city, momValue);
-    });
-  });
-
-  if (momByCity.size !== 70) {
-    throw new Error(`Expected 70 cities from official release table 2, got ${momByCity.size}.`);
-  }
-
-  return momByCity;
+function writeOutput(outputPath, outputJsonPath, outputData) {
+  fs.writeFileSync(
+    outputPath,
+    `window.HOUSE_PRICE_SOURCE_DATA_NBS_70 = ${JSON.stringify(outputData, null, 2)};\n`,
+    "utf8",
+  );
+  fs.writeFileSync(outputJsonPath, `${JSON.stringify(outputData, null, 2)}\n`, "utf8");
 }
 
-async function main() {
-  const __filename = fileURLToPath(import.meta.url);
-  const __dirname = path.dirname(__filename);
+function loadExistingOutputData(outputJsonPath) {
+  if (!fs.existsSync(outputJsonPath)) return null;
+  return JSON.parse(fs.readFileSync(outputJsonPath, "utf8"));
+}
 
-  const outputPath = process.argv[2] || path.resolve(__dirname, "..", "house-price-data-nbs-70.js");
-  const outputMinMonth =
-    normalizeMonthToken(process.env.NBS_OUTPUT_MIN_MONTH) || DEFAULT_OUTPUT_MIN_MONTH;
-  const outputBaseMonth =
-    normalizeMonthToken(process.env.NBS_OUTPUT_BASE_MONTH) || DEFAULT_OUTPUT_BASE_MONTH;
-  const requestedMaxMonth =
-    normalizeMonthToken(process.env.NBS_OUTPUT_MAX_MONTH) || formatCurrentMonthUTC();
-  const outputJsonPath = outputPath.replace(/\.js$/i, ".json");
-  const officialReleaseUrl = String(process.env.NBS_OFFICIAL_RELEASE_URL || "").trim();
-  if (!outputMinMonth || !outputBaseMonth || !requestedMaxMonth) {
-    throw new Error("Invalid month settings. Expected YYYY-MM format.");
-  }
-  if (outputMinMonth > requestedMaxMonth) {
-    throw new Error(`NBS_OUTPUT_MIN_MONTH (${outputMinMonth}) cannot be later than max month (${requestedMaxMonth}).`);
-  }
-  if (outputBaseMonth < outputMinMonth || outputBaseMonth > requestedMaxMonth) {
-    throw new Error(`NBS_OUTPUT_BASE_MONTH (${outputBaseMonth}) must be within [${outputMinMonth}, ${requestedMaxMonth}].`);
+function getLatestMonthFromExistingData(existingData) {
+  const dates = Array.isArray(existingData?.dates) ? existingData.dates : [];
+  return normalizeMonthToken(dates[dates.length - 1] || existingData?.outputMaxMonth || "");
+}
+
+function buildOfficialReleaseListPageUrl(pageIndex) {
+  if (pageIndex <= 0) return OFFICIAL_RELEASE_LIST_URL;
+  return new URL(`index_${pageIndex}.html`, OFFICIAL_RELEASE_LIST_URL).toString();
+}
+
+async function collectOfficialReleaseEntries({ currentLatestMonth, requestedMaxMonth }) {
+  const entriesByMonth = new Map();
+  let pageCount = 1;
+
+  for (let pageIndex = 0; pageIndex < pageCount; pageIndex += 1) {
+    const pageUrl = buildOfficialReleaseListPageUrl(pageIndex);
+    // eslint-disable-next-line no-console
+    console.log(`Scanning official release list page ${pageIndex + 1}${pageCount > 1 ? `/${pageCount}` : ""}...`);
+    const html = await requestText(pageUrl);
+    const parsed = parseReleaseListPage(html, pageUrl);
+    if (pageIndex === 0) {
+      pageCount = parsed.pageCount;
+    }
+
+    let canStop = false;
+    parsed.entries.forEach((entry) => {
+      if (entry.month > requestedMaxMonth) return;
+      if (currentLatestMonth && entry.month <= currentLatestMonth) {
+        canStop = true;
+        return;
+      }
+      if (!entriesByMonth.has(entry.month)) {
+        entriesByMonth.set(entry.month, entry);
+      }
+    });
+
+    if (canStop) break;
+    await sleep(120);
   }
 
+  return [...entriesByMonth.values()].sort((left, right) => left.month.localeCompare(right.month));
+}
+
+async function updateFromOfficialReleases(existingData, requestedMaxMonth) {
+  const currentLatestMonth = getLatestMonthFromExistingData(existingData);
+  const entries = await collectOfficialReleaseEntries({
+    currentLatestMonth,
+    requestedMaxMonth,
+  });
+
+  if (entries.length === 0) {
+    return {
+      updated: false,
+      outputData: existingData,
+      currentLatestMonth,
+    };
+  }
+
+  let outputData = structuredClone(existingData);
+
+  for (const entry of entries) {
+    // eslint-disable-next-line no-console
+    console.log(`Applying official release ${entry.month}: ${entry.url}`);
+    const articleHtml = await requestText(entry.url);
+    const momByCity = parseOfficialReleaseSecondhandMomTable(articleHtml);
+    outputData = applyOfficialRelease(outputData, {
+      month: entry.month,
+      url: entry.url,
+      momByCity,
+    });
+    await sleep(120);
+  }
+
+  outputData.requestedMaxMonth = requestedMaxMonth;
+  outputData.outputMaxMonth = minMonth(
+    requestedMaxMonth,
+    outputData.dates[outputData.dates.length - 1] || requestedMaxMonth,
+  );
+  outputData.cityCount = Array.isArray(outputData.cities) ? outputData.cities.length : 0;
+  outputData.sourceFile = `${OFFICIAL_RELEASE_LIST_URL} (official release incremental update)`;
+  outputData.sourceName =
+    outputData.sourceName || "国家统计局70城二手住宅销售价格指数(上月=100,链式定基)";
+  outputData.indicatorId = outputData.indicatorId || INDICATOR_ID;
+  outputData.dbcode = outputData.dbcode || DB_CODE;
+  outputData.excludedRegCodes = outputData.excludedRegCodes || [...EXCLUDED_REG_CODES];
+
+  return {
+    updated: true,
+    outputData,
+    appliedEntries: entries,
+  };
+}
+
+async function buildDatasetFromApi({
+  outputMinMonth,
+  outputBaseMonth,
+  requestedMaxMonth,
+  officialReleaseUrl,
+}) {
   const startYear = Number(outputMinMonth.slice(0, 4));
   const endYear = Number(requestedMaxMonth.slice(0, 4));
 
@@ -295,7 +338,7 @@ async function main() {
 
   for (let year = startYear; year <= endYear; year += 1) {
     // eslint-disable-next-line no-console
-    console.log(`Fetching NBS year ${year}...`);
+    console.log(`Fetching NBS year ${year} from API...`);
     const returndata = await fetchYearRaw(year);
     const regNodes = getWdnodes(returndata, "reg");
 
@@ -339,14 +382,12 @@ async function main() {
   }
 
   if (officialReleaseUrl && requestedMaxMonth > latestMonthFromApi) {
-    // Fallback for cases where the NBS release page is published before easyquery updates.
     const officialHtml = await requestText(officialReleaseUrl);
     const officialMomByCity = parseOfficialReleaseSecondhandMomTable(officialHtml);
 
     cityOrder.forEach((regCode) => {
       const cityName = cityNameByCode.get(regCode);
-      const normalizedName = normalizeCityName(cityName);
-      const momValue = officialMomByCity.get(normalizedName);
+      const momValue = officialMomByCity.get(cityName);
       if (!Number.isFinite(momValue)) return;
       if (!momByCity.has(regCode)) {
         momByCity.set(regCode, new Map());
@@ -407,7 +448,7 @@ async function main() {
     });
   });
 
-  const outputData = {
+  return {
     sourceFile: `${API_URL} (${DB_CODE}/${INDICATOR_ID})`,
     sheetName: "NBS_70city_secondhand",
     baseMonth: outputBaseMonth,
@@ -426,14 +467,93 @@ async function main() {
     officialReleaseUrl: officialReleaseUrl || null,
     excludedRegCodes: [...EXCLUDED_REG_CODES],
   };
+}
 
-  fs.writeFileSync(outputPath, `window.HOUSE_PRICE_SOURCE_DATA_NBS_70 = ${JSON.stringify(outputData, null, 2)};\n`, "utf8");
-  fs.writeFileSync(outputJsonPath, `${JSON.stringify(outputData, null, 2)}\n`, "utf8");
+async function main() {
+  const __filename = fileURLToPath(import.meta.url);
+  const __dirname = path.dirname(__filename);
+
+  const outputPath =
+    process.argv[2] || path.resolve(__dirname, "..", "house-price-data-nbs-70.js");
+  const outputMinMonth =
+    normalizeMonthToken(process.env.NBS_OUTPUT_MIN_MONTH) || DEFAULT_OUTPUT_MIN_MONTH;
+  const outputBaseMonth =
+    normalizeMonthToken(process.env.NBS_OUTPUT_BASE_MONTH) || DEFAULT_OUTPUT_BASE_MONTH;
+  const requestedMaxMonth =
+    normalizeMonthToken(process.env.NBS_OUTPUT_MAX_MONTH) || formatCurrentMonthUTC();
+  const outputJsonPath = outputPath.replace(/\.js$/i, ".json");
+  const officialReleaseUrl = String(process.env.NBS_OFFICIAL_RELEASE_URL || "").trim();
+  const forceFullRebuild = String(process.env.NBS_FORCE_FULL_REBUILD || "").trim() === "1";
+
+  if (!outputMinMonth || !outputBaseMonth || !requestedMaxMonth) {
+    throw new Error("Invalid month settings. Expected YYYY-MM format.");
+  }
+  if (outputMinMonth > requestedMaxMonth) {
+    throw new Error(
+      `NBS_OUTPUT_MIN_MONTH (${outputMinMonth}) cannot be later than max month (${requestedMaxMonth}).`,
+    );
+  }
+  if (outputBaseMonth < outputMinMonth || outputBaseMonth > requestedMaxMonth) {
+    throw new Error(
+      `NBS_OUTPUT_BASE_MONTH (${outputBaseMonth}) must be within [${outputMinMonth}, ${requestedMaxMonth}].`,
+    );
+  }
+
+  const existingData = !forceFullRebuild ? loadExistingOutputData(outputJsonPath) : null;
+  const canUseIncremental =
+    existingData &&
+    Array.isArray(existingData?.dates) &&
+    existingData.dates.length > 0 &&
+    existingData.dates[0] === outputMinMonth &&
+    normalizeMonthToken(existingData?.baseMonth) === outputBaseMonth;
+
+  if (canUseIncremental) {
+    // eslint-disable-next-line no-console
+    console.log("Using official release incremental update path.");
+    const result = await updateFromOfficialReleases(existingData, requestedMaxMonth);
+
+    if (!result.updated) {
+      // eslint-disable-next-line no-console
+      console.log(
+        `No newer official NBS release found beyond ${result.currentLatestMonth || outputBaseMonth}.`,
+      );
+      return;
+    }
+
+    writeOutput(outputPath, outputJsonPath, result.outputData);
+    // eslint-disable-next-line no-console
+    console.log(
+      `Official releases applied: ${result.appliedEntries.map((entry) => entry.month).join(", ")}`,
+    );
+    // eslint-disable-next-line no-console
+    console.log(
+      `Date range: ${result.outputData.dates[0]} -> ${
+        result.outputData.dates[result.outputData.dates.length - 1]
+      }`,
+    );
+    // eslint-disable-next-line no-console
+    console.log(`JS output: ${outputPath}`);
+    // eslint-disable-next-line no-console
+    console.log(`JSON output: ${outputJsonPath}`);
+    return;
+  }
 
   // eslint-disable-next-line no-console
-  console.log(`NBS data extracted: ${cities.length} cities, ${months.length} months.`);
+  console.log("Falling back to full API rebuild path.");
+  const outputData = await buildDatasetFromApi({
+    outputMinMonth,
+    outputBaseMonth,
+    requestedMaxMonth,
+    officialReleaseUrl,
+  });
+  writeOutput(outputPath, outputJsonPath, outputData);
+
   // eslint-disable-next-line no-console
-  console.log(`Date range: ${months[0]} -> ${months[months.length - 1]}`);
+  console.log(`NBS data extracted: ${outputData.cities.length} cities, ${outputData.dates.length} months.`);
+  // eslint-disable-next-line no-console
+  console.log(
+    `Date range: ${outputData.dates[0]} -> ${outputData.dates[outputData.dates.length - 1]}`,
+  );
   // eslint-disable-next-line no-console
   console.log(`JS output: ${outputPath}`);
   // eslint-disable-next-line no-console
