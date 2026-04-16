@@ -5,6 +5,8 @@ import path from "node:path";
 import { execFileSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 
+import { cityNameFromMetric } from "./house-price-extract-utils.mjs";
+
 function decodeXmlText(text) {
   if (typeof text !== "string") return "";
   return text
@@ -98,12 +100,6 @@ function toOptionalNumber(value) {
     if (Number.isFinite(numeric)) return numeric;
   }
   return null;
-}
-
-function cityNameFromMetric(metricName) {
-  const raw = String(metricName || "").trim();
-  if (!raw) return "";
-  return raw.split(/[：:]/)[0].trim();
 }
 
 function readSheetName(workbookXml) {

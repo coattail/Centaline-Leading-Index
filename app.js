@@ -1,6 +1,8 @@
 let raw = null;
 let activeSourceMeta = null;
 
+const DATA_ASSET_VERSION = "20260416-data-refresh";
+
 const SOURCE_CONFIGS = [
   {
     key: "centaline6",
@@ -10,7 +12,7 @@ const SOURCE_CONFIGS = [
     heroSubtitle: "数据来源：Wind、中原研究中心",
     defaultSelectedNames: null,
     dataGlobalKey: "HOUSE_PRICE_SOURCE_DATA",
-    scriptPath: "house-price-data.js",
+    scriptPath: `house-price-data.js?v=${DATA_ASSET_VERSION}`,
     data: window.HOUSE_PRICE_SOURCE_DATA,
   },
   {
@@ -21,7 +23,7 @@ const SOURCE_CONFIGS = [
     heroSubtitle: "数据来源：国家统计局（70城二手住宅销售价格指数）",
     defaultSelectedNames: ["北京", "上海", "广州", "深圳", "天津", "重庆"],
     dataGlobalKey: "HOUSE_PRICE_SOURCE_DATA_NBS_70",
-    scriptPath: "house-price-data-nbs-70.js",
+    scriptPath: `house-price-data-nbs-70.js?v=${DATA_ASSET_VERSION}`,
     data: window.HOUSE_PRICE_SOURCE_DATA_NBS_70,
   },
 ];
