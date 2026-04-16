@@ -1112,6 +1112,125 @@ function clampNumber(value, min, max) {
   return Math.min(Math.max(value, min), max);
 }
 
+function areSetsEqual(left, right) {
+  if (!(left instanceof Set) || !(right instanceof Set)) return false;
+  if (left.size !== right.size) return false;
+  for (const value of left) {
+    if (!right.has(value)) return false;
+  }
+  return true;
+}
+
+function syncHiddenCityNames(nextHiddenCityNames) {
+  const nextHidden =
+    nextHiddenCityNames && typeof nextHiddenCityNames[Symbol.iterator] === "function"
+      ? new Set(nextHiddenCityNames)
+      : new Set();
+  if (areSetsEqual(uiState.hiddenCityNames, nextHidden)) return false;
+  uiState.hiddenCityNames = nextHidden;
+  render();
+  return true;
+}
+
+function toggleCityLineVisibility(cityName) {
+  if (!cityName) return false;
+  const nextHidden = new Set(uiState.hiddenCityNames);
+  if (nextHidden.has(cityName)) {
+    nextHidden.delete(cityName);
+  } else {
+    nextHidden.add(cityName);
+  }
+  return syncHiddenCityNames(nextHidden);
+}
+
+function pointToSegmentDistanceSquared(px, py, ax, ay, bx, by) {
+  const abx = bx - ax;
+  const aby = by - ay;
+  const apx = px - ax;
+  const apy = py - ay;
+  const abLengthSquared = abx * abx + aby * aby;
+
+  if (abLengthSquared <= 1e-6) {
+    return apx * apx + apy * apy;
+  }
+
+  const projection = Math.min(Math.max((apx * abx + apy * aby) / abLengthSquared, 0), 1);
+  const closestX = ax + abx * projection;
+  const closestY = ay + aby * projection;
+  const dx = px - closestX;
+  const dy = py - closestY;
+  return dx * dx + dy * dy;
+}
+
+function findNearestVisibleSeriesNameByPixel(
+  rendered,
+  hiddenCityNames,
+  axisMonths,
+  clickX,
+  clickY,
+  toPixelCoord,
+  maxDistancePx = 14,
+) {
+  if (!Array.isArray(rendered) || rendered.length === 0) return null;
+  if (!hiddenCityNames || typeof hiddenCityNames.has !== "function") return null;
+  if (!Array.isArray(axisMonths) || axisMonths.length === 0) return null;
+  if (!Number.isFinite(clickX) || !Number.isFinite(clickY)) return null;
+  if (typeof toPixelCoord !== "function") return null;
+
+  const maxDistanceSquared = maxDistancePx * maxDistancePx;
+  let bestMatch = null;
+
+  for (const item of rendered) {
+    if (!item?.name || hiddenCityNames.has(item.name)) continue;
+    const values = Array.isArray(item.normalized) ? item.normalized : [];
+    let previousPoint = null;
+
+    for (let index = 0; index < axisMonths.length; index += 1) {
+      const month = axisMonths[index];
+      const value = values[index];
+      if (!Number.isFinite(value)) {
+        previousPoint = null;
+        continue;
+      }
+
+      const point = toPixelCoord(month, value);
+      if (!point || !Number.isFinite(point.x) || !Number.isFinite(point.y)) {
+        previousPoint = null;
+        continue;
+      }
+
+      const pointDx = clickX - point.x;
+      const pointDy = clickY - point.y;
+      const pointDistanceSquared = pointDx * pointDx + pointDy * pointDy;
+      if (pointDistanceSquared <= maxDistanceSquared) {
+        if (!bestMatch || pointDistanceSquared < bestMatch.distanceSquared) {
+          bestMatch = { name: item.name, distanceSquared: pointDistanceSquared };
+        }
+      }
+
+      if (previousPoint) {
+        const segmentDistanceSquared = pointToSegmentDistanceSquared(
+          clickX,
+          clickY,
+          previousPoint.x,
+          previousPoint.y,
+          point.x,
+          point.y,
+        );
+        if (segmentDistanceSquared <= maxDistanceSquared) {
+          if (!bestMatch || segmentDistanceSquared < bestMatch.distanceSquared) {
+            bestMatch = { name: item.name, distanceSquared: segmentDistanceSquared };
+          }
+        }
+      }
+
+      previousPoint = point;
+    }
+  }
+
+  return bestMatch?.name || null;
+}
+
 function resolveYAxisRoundUnit(span) {
   const safeSpan = Math.max(0, Number(span) || 0);
   if (safeSpan >= 450) return 5;
@@ -1550,15 +1669,6 @@ function bindChartWheelToPageScroll() {
     },
     { passive: false, capture: true },
   );
-}
-
-function toggleCityVisibility(cityName) {
-  if (!cityName) return;
-  if (uiState.hiddenCityNames.has(cityName)) {
-    uiState.hiddenCityNames.delete(cityName);
-  } else {
-    uiState.hiddenCityNames.add(cityName);
-  }
 }
 
 function readSelectedCityIds() {
@@ -4697,6 +4807,11 @@ function render() {
     startMonth: viewportStartMonth,
     endMonth: viewportEndMonth,
     visibleSummaryRows,
+    renderedSeries: rendered.map((item) => ({
+      name: item.name,
+      normalized: [...item.normalized],
+    })),
+    axisMonths: months.map((month) => normalizeMonthToken(month) || String(month || "")),
   };
 
   updateDrawdownButton(drawdownEligibleCount);
@@ -4836,17 +4951,32 @@ function bindEvents() {
     render();
   });
 
-  chart.on("click", (params) => {
-    if (params?.componentType === "series" && params?.seriesName) {
-      const cityName = params.seriesName;
-      const nextHidden = !uiState.hiddenCityNames.has(cityName);
-      toggleCityVisibility(cityName);
-      chart.dispatchAction({
-        type: nextHidden ? "legendUnSelect" : "legendSelect",
-        name: cityName,
-      });
-      return;
-    }
+  chart.getZr().on("click", (event) => {
+    if (!latestRenderContext?.renderedSeries?.length || !latestRenderContext?.axisMonths?.length) return;
+
+    const clickX = Number(event?.offsetX ?? event?.zrX);
+    const clickY = Number(event?.offsetY ?? event?.zrY);
+    if (!Number.isFinite(clickX) || !Number.isFinite(clickY)) return;
+    if (!chart.containPixel({ gridIndex: 0 }, [clickX, clickY])) return;
+
+    const cityName = findNearestVisibleSeriesNameByPixel(
+      latestRenderContext.renderedSeries,
+      uiState.hiddenCityNames,
+      latestRenderContext.axisMonths,
+      clickX,
+      clickY,
+      (month, value) => {
+        const pixel = chart.convertToPixel({ xAxisIndex: 0, yAxisIndex: 0 }, [month, value]);
+        if (!Array.isArray(pixel) || pixel.length < 2) return null;
+        const [x, y] = pixel;
+        if (!Number.isFinite(x) || !Number.isFinite(y)) return null;
+        return { x, y };
+      },
+      18,
+    );
+    if (!cityName) return;
+
+    toggleCityLineVisibility(cityName);
   });
 
   chart.on("legendselectchanged", (params) => {
@@ -4855,7 +4985,7 @@ function bindEvents() {
     for (const [name, selected] of Object.entries(params.selected || {})) {
       if (!selected) hidden.add(name);
     }
-    uiState.hiddenCityNames = hidden;
+    syncHiddenCityNames(hidden);
   });
 
   if (timeZoomStartEl && timeZoomEndEl) {
