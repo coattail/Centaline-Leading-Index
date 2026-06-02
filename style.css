@@ -217,14 +217,17 @@ body.theme-dark .table-wrap thead th:first-child {
 }
 
 body.theme-dark .chart-stats-overlay table,
-body.theme-dark .chart-stats-overlay th {
+body.theme-dark .chart-stats-overlay th,
+body.theme-dark .chart-stats-overlay td {
   border-color: #ffffff;
 }
 
 body.theme-dark .chart-stats-overlay th,
 body.theme-dark .chart-stats-overlay td,
 body.theme-dark .chart-stats-overlay thead th,
-body.theme-dark .chart-stats-source-tag {
+body.theme-dark .chart-stats-source-tag,
+body.theme-dark .chart-stats-th-text,
+body.theme-dark .chart-stats-city-main {
   color: #ffffff;
 }
 
