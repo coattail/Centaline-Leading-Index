@@ -1,5 +1,6 @@
 const test = require("node:test");
 const assert = require("node:assert/strict");
+const { readFileSync } = require("node:fs");
 const { spawn } = require("node:child_process");
 const { join, resolve } = require("node:path");
 const { execFileSync } = require("node:child_process");
@@ -47,6 +48,15 @@ function runPw(args) {
   });
 }
 
+function buildExpectedEvenlySampledLabels() {
+  const data = JSON.parse(readFileSync(join(PROJECT_ROOT, "house-price-data.json"), "utf8"));
+  const dates = Array.isArray(data.dates) ? data.dates : [];
+  assert.ok(dates.length > 0, "house-price-data.json should contain dates");
+
+  const step = Math.ceil((dates.length - 1) / 10);
+  return dates.filter((_, index) => index % step === 0 || index === dates.length - 1);
+}
+
 test("wide desktop view keeps evenly sampled x-axis labels visible", async (t) => {
   const port = 9132;
   const session = `cli${Date.now().toString(36)}`;
@@ -89,17 +99,5 @@ test("wide desktop view keeps evenly sampled x-axis labels visible", async (t) =
 
   assert.equal(result.title, "中原领先指数 | 中国二手房价格分析");
   assert.equal(result.chartWidth, 1234);
-  assert.deepEqual(result.labels, [
-    "2008-01",
-    "2009-11",
-    "2011-08",
-    "2013-06",
-    "2015-04",
-    "2017-02",
-    "2018-11",
-    "2020-09",
-    "2022-07",
-    "2024-04",
-    "2026-02",
-  ]);
+  assert.deepEqual(result.labels, buildExpectedEvenlySampledLabels());
 });

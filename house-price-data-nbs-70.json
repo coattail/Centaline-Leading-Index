@@ -2,7 +2,7 @@
   "sourceFile": "https://www.stats.gov.cn/sj/zxfb/ (official release incremental update)",
   "sheetName": "NBS_70city_secondhand",
   "baseMonth": "2006-01",
-  "rowsParsed": 244,
+  "rowsParsed": 245,
   "dates": [
     "2006-01",
     "2006-02",
@@ -247,7 +247,8 @@
     "2026-01",
     "2026-02",
     "2026-03",
-    "2026-04"
+    "2026-04",
+    "2026-05"
   ],
   "cities": [
     {
@@ -256,10 +257,10 @@
       "metricName": "北京:二手住宅销售价格指数(上月=100,链式定基)",
       "column": null,
       "indicatorId": "A010807",
-      "availableRange": "2006-01:2026-04",
+      "availableRange": "2006-01:2026-05",
       "source": "国家统计局(data.stats.gov.cn)",
       "frequency": "月",
-      "updatedAt": "2026-04",
+      "updatedAt": "2026-05",
       "rebaseBaseMonth": "2006-01",
       "rebaseBaseValue": 100,
       "regCode": "110000",
@@ -271,10 +272,10 @@
       "metricName": "天津:二手住宅销售价格指数(上月=100,链式定基)",
       "column": null,
       "indicatorId": "A010807",
-      "availableRange": "2006-01:2026-04",
+      "availableRange": "2006-01:2026-05",
       "source": "国家统计局(data.stats.gov.cn)",
       "frequency": "月",
-      "updatedAt": "2026-04",
+      "updatedAt": "2026-05",
       "rebaseBaseMonth": "2006-01",
       "rebaseBaseValue": 100,
       "regCode": "120000",
@@ -286,10 +287,10 @@
       "metricName": "石家庄:二手住宅销售价格指数(上月=100,链式定基)",
       "column": null,
       "indicatorId": "A010807",
-      "availableRange": "2006-01:2026-04",
+      "availableRange": "2006-01:2026-05",
       "source": "国家统计局(data.stats.gov.cn)",
       "frequency": "月",
-      "updatedAt": "2026-04",
+      "updatedAt": "2026-05",
       "rebaseBaseMonth": "2006-01",
       "rebaseBaseValue": 100,
       "regCode": "130100",
@@ -301,10 +302,10 @@
       "metricName": "唐山:二手住宅销售价格指数(上月=100,链式定基)",
       "column": null,
       "indicatorId": "A010807",
-      "availableRange": "2006-01:2026-04",
+      "availableRange": "2006-01:2026-05",
       "source": "国家统计局(data.stats.gov.cn)",
       "frequency": "月",
-      "updatedAt": "2026-04",
+      "updatedAt": "2026-05",
       "rebaseBaseMonth": "2006-01",
       "rebaseBaseValue": 100,
       "regCode": "130200",
@@ -316,10 +317,10 @@
       "metricName": "秦皇岛:二手住宅销售价格指数(上月=100,链式定基)",
       "column": null,
       "indicatorId": "A010807",
-      "availableRange": "2006-01:2026-04",
+      "availableRange": "2006-01:2026-05",
       "source": "国家统计局(data.stats.gov.cn)",
       "frequency": "月",
-      "updatedAt": "2026-04",
+      "updatedAt": "2026-05",
       "rebaseBaseMonth": "2006-01",
       "rebaseBaseValue": 100,
       "regCode": "130300",
@@ -331,10 +332,10 @@
       "metricName": "太原:二手住宅销售价格指数(上月=100,链式定基)",
       "column": null,
       "indicatorId": "A010807",
-      "availableRange": "2006-01:2026-04",
+      "availableRange": "2006-01:2026-05",
       "source": "国家统计局(data.stats.gov.cn)",
       "frequency": "月",
-      "updatedAt": "2026-04",
+      "updatedAt": "2026-05",
       "rebaseBaseMonth": "2006-01",
       "rebaseBaseValue": 100,
       "regCode": "140100",
@@ -346,10 +347,10 @@
       "metricName": "呼和浩特:二手住宅销售价格指数(上月=100,链式定基)",
       "column": null,
       "indicatorId": "A010807",
-      "availableRange": "2006-01:2026-04",
+      "availableRange": "2006-01:2026-05",
       "source": "国家统计局(data.stats.gov.cn)",
       "frequency": "月",
-      "updatedAt": "2026-04",
+      "updatedAt": "2026-05",
       "rebaseBaseMonth": "2006-01",
       "rebaseBaseValue": 100,
       "regCode": "150100",
@@ -361,10 +362,10 @@
       "metricName": "包头:二手住宅销售价格指数(上月=100,链式定基)",
       "column": null,
       "indicatorId": "A010807",
-      "availableRange": "2006-01:2026-04",
+      "availableRange": "2006-01:2026-05",
       "source": "国家统计局(data.stats.gov.cn)",
       "frequency": "月",
-      "updatedAt": "2026-04",
+      "updatedAt": "2026-05",
       "rebaseBaseMonth": "2006-01",
       "rebaseBaseValue": 100,
       "regCode": "150200",
@@ -376,10 +377,10 @@
       "metricName": "沈阳:二手住宅销售价格指数(上月=100,链式定基)",
       "column": null,
       "indicatorId": "A010807",
-      "availableRange": "2006-01:2026-04",
+      "availableRange": "2006-01:2026-05",
       "source": "国家统计局(data.stats.gov.cn)",
       "frequency": "月",
-      "updatedAt": "2026-04",
+      "updatedAt": "2026-05",
       "rebaseBaseMonth": "2006-01",
       "rebaseBaseValue": 100,
       "regCode": "210100",
@@ -391,10 +392,10 @@
       "metricName": "大连:二手住宅销售价格指数(上月=100,链式定基)",
       "column": null,
       "indicatorId": "A010807",
-      "availableRange": "2006-01:2026-04",
+      "availableRange": "2006-01:2026-05",
       "source": "国家统计局(data.stats.gov.cn)",
       "frequency": "月",
-      "updatedAt": "2026-04",
+      "updatedAt": "2026-05",
       "rebaseBaseMonth": "2006-01",
       "rebaseBaseValue": 100,
       "regCode": "210200",
@@ -406,10 +407,10 @@
       "metricName": "丹东:二手住宅销售价格指数(上月=100,链式定基)",
       "column": null,
       "indicatorId": "A010807",
-      "availableRange": "2006-01:2026-04",
+      "availableRange": "2006-01:2026-05",
       "source": "国家统计局(data.stats.gov.cn)",
       "frequency": "月",
-      "updatedAt": "2026-04",
+      "updatedAt": "2026-05",
       "rebaseBaseMonth": "2006-01",
       "rebaseBaseValue": 100,
       "regCode": "210600",
@@ -421,10 +422,10 @@
       "metricName": "锦州:二手住宅销售价格指数(上月=100,链式定基)",
       "column": null,
       "indicatorId": "A010807",
-      "availableRange": "2006-01:2026-04",
+      "availableRange": "2006-01:2026-05",
       "source": "国家统计局(data.stats.gov.cn)",
       "frequency": "月",
-      "updatedAt": "2026-04",
+      "updatedAt": "2026-05",
       "rebaseBaseMonth": "2006-01",
       "rebaseBaseValue": 100,
       "regCode": "210700",
@@ -436,10 +437,10 @@
       "metricName": "长春:二手住宅销售价格指数(上月=100,链式定基)",
       "column": null,
       "indicatorId": "A010807",
-      "availableRange": "2006-01:2026-04",
+      "availableRange": "2006-01:2026-05",
       "source": "国家统计局(data.stats.gov.cn)",
       "frequency": "月",
-      "updatedAt": "2026-04",
+      "updatedAt": "2026-05",
       "rebaseBaseMonth": "2006-01",
       "rebaseBaseValue": 100,
       "regCode": "220100",
@@ -451,10 +452,10 @@
       "metricName": "吉林:二手住宅销售价格指数(上月=100,链式定基)",
       "column": null,
       "indicatorId": "A010807",
-      "availableRange": "2006-01:2026-04",
+      "availableRange": "2006-01:2026-05",
       "source": "国家统计局(data.stats.gov.cn)",
       "frequency": "月",
-      "updatedAt": "2026-04",
+      "updatedAt": "2026-05",
       "rebaseBaseMonth": "2006-01",
       "rebaseBaseValue": 100,
       "regCode": "220200",
@@ -466,10 +467,10 @@
       "metricName": "哈尔滨:二手住宅销售价格指数(上月=100,链式定基)",
       "column": null,
       "indicatorId": "A010807",
-      "availableRange": "2006-01:2026-04",
+      "availableRange": "2006-01:2026-05",
       "source": "国家统计局(data.stats.gov.cn)",
       "frequency": "月",
-      "updatedAt": "2026-04",
+      "updatedAt": "2026-05",
       "rebaseBaseMonth": "2006-01",
       "rebaseBaseValue": 100,
       "regCode": "230100",
@@ -481,10 +482,10 @@
       "metricName": "牡丹江:二手住宅销售价格指数(上月=100,链式定基)",
       "column": null,
       "indicatorId": "A010807",
-      "availableRange": "2006-01:2026-04",
+      "availableRange": "2006-01:2026-05",
       "source": "国家统计局(data.stats.gov.cn)",
       "frequency": "月",
-      "updatedAt": "2026-04",
+      "updatedAt": "2026-05",
       "rebaseBaseMonth": "2006-01",
       "rebaseBaseValue": 100,
       "regCode": "231000",
@@ -496,10 +497,10 @@
       "metricName": "上海:二手住宅销售价格指数(上月=100,链式定基)",
       "column": null,
       "indicatorId": "A010807",
-      "availableRange": "2006-01:2026-04",
+      "availableRange": "2006-01:2026-05",
       "source": "国家统计局(data.stats.gov.cn)",
       "frequency": "月",
-      "updatedAt": "2026-04",
+      "updatedAt": "2026-05",
       "rebaseBaseMonth": "2006-01",
       "rebaseBaseValue": 100,
       "regCode": "310000",
@@ -511,10 +512,10 @@
       "metricName": "南京:二手住宅销售价格指数(上月=100,链式定基)",
       "column": null,
       "indicatorId": "A010807",
-      "availableRange": "2006-01:2026-04",
+      "availableRange": "2006-01:2026-05",
       "source": "国家统计局(data.stats.gov.cn)",
       "frequency": "月",
-      "updatedAt": "2026-04",
+      "updatedAt": "2026-05",
       "rebaseBaseMonth": "2006-01",
       "rebaseBaseValue": 100,
       "regCode": "320100",
@@ -526,10 +527,10 @@
       "metricName": "无锡:二手住宅销售价格指数(上月=100,链式定基)",
       "column": null,
       "indicatorId": "A010807",
-      "availableRange": "2006-01:2026-04",
+      "availableRange": "2006-01:2026-05",
       "source": "国家统计局(data.stats.gov.cn)",
       "frequency": "月",
-      "updatedAt": "2026-04",
+      "updatedAt": "2026-05",
       "rebaseBaseMonth": "2006-01",
       "rebaseBaseValue": 100,
       "regCode": "320200",
@@ -541,10 +542,10 @@
       "metricName": "徐州:二手住宅销售价格指数(上月=100,链式定基)",
       "column": null,
       "indicatorId": "A010807",
-      "availableRange": "2006-01:2026-04",
+      "availableRange": "2006-01:2026-05",
       "source": "国家统计局(data.stats.gov.cn)",
       "frequency": "月",
-      "updatedAt": "2026-04",
+      "updatedAt": "2026-05",
       "rebaseBaseMonth": "2006-01",
       "rebaseBaseValue": 100,
       "regCode": "320300",
@@ -556,10 +557,10 @@
       "metricName": "扬州:二手住宅销售价格指数(上月=100,链式定基)",
       "column": null,
       "indicatorId": "A010807",
-      "availableRange": "2006-01:2026-04",
+      "availableRange": "2006-01:2026-05",
       "source": "国家统计局(data.stats.gov.cn)",
       "frequency": "月",
-      "updatedAt": "2026-04",
+      "updatedAt": "2026-05",
       "rebaseBaseMonth": "2006-01",
       "rebaseBaseValue": 100,
       "regCode": "321000",
@@ -571,10 +572,10 @@
       "metricName": "杭州:二手住宅销售价格指数(上月=100,链式定基)",
       "column": null,
       "indicatorId": "A010807",
-      "availableRange": "2006-01:2026-04",
+      "availableRange": "2006-01:2026-05",
       "source": "国家统计局(data.stats.gov.cn)",
       "frequency": "月",
-      "updatedAt": "2026-04",
+      "updatedAt": "2026-05",
       "rebaseBaseMonth": "2006-01",
       "rebaseBaseValue": 100,
       "regCode": "330100",
@@ -586,10 +587,10 @@
       "metricName": "宁波:二手住宅销售价格指数(上月=100,链式定基)",
       "column": null,
       "indicatorId": "A010807",
-      "availableRange": "2006-01:2026-04",
+      "availableRange": "2006-01:2026-05",
       "source": "国家统计局(data.stats.gov.cn)",
       "frequency": "月",
-      "updatedAt": "2026-04",
+      "updatedAt": "2026-05",
       "rebaseBaseMonth": "2006-01",
       "rebaseBaseValue": 100,
       "regCode": "330200",
@@ -601,10 +602,10 @@
       "metricName": "温州:二手住宅销售价格指数(上月=100,链式定基)",
       "column": null,
       "indicatorId": "A010807",
-      "availableRange": "2006-01:2026-04",
+      "availableRange": "2006-01:2026-05",
       "source": "国家统计局(data.stats.gov.cn)",
       "frequency": "月",
-      "updatedAt": "2026-04",
+      "updatedAt": "2026-05",
       "rebaseBaseMonth": "2006-01",
       "rebaseBaseValue": 100,
       "regCode": "330300",
@@ -616,10 +617,10 @@
       "metricName": "金华:二手住宅销售价格指数(上月=100,链式定基)",
       "column": null,
       "indicatorId": "A010807",
-      "availableRange": "2006-01:2026-04",
+      "availableRange": "2006-01:2026-05",
       "source": "国家统计局(data.stats.gov.cn)",
       "frequency": "月",
-      "updatedAt": "2026-04",
+      "updatedAt": "2026-05",
       "rebaseBaseMonth": "2006-01",
       "rebaseBaseValue": 100,
       "regCode": "330700",
@@ -631,10 +632,10 @@
       "metricName": "合肥:二手住宅销售价格指数(上月=100,链式定基)",
       "column": null,
       "indicatorId": "A010807",
-      "availableRange": "2006-01:2026-04",
+      "availableRange": "2006-01:2026-05",
       "source": "国家统计局(data.stats.gov.cn)",
       "frequency": "月",
-      "updatedAt": "2026-04",
+      "updatedAt": "2026-05",
       "rebaseBaseMonth": "2006-01",
       "rebaseBaseValue": 100,
       "regCode": "340100",
@@ -646,10 +647,10 @@
       "metricName": "蚌埠:二手住宅销售价格指数(上月=100,链式定基)",
       "column": null,
       "indicatorId": "A010807",
-      "availableRange": "2006-01:2026-04",
+      "availableRange": "2006-01:2026-05",
       "source": "国家统计局(data.stats.gov.cn)",
       "frequency": "月",
-      "updatedAt": "2026-04",
+      "updatedAt": "2026-05",
       "rebaseBaseMonth": "2006-01",
       "rebaseBaseValue": 100,
       "regCode": "340300",
@@ -661,10 +662,10 @@
       "metricName": "安庆:二手住宅销售价格指数(上月=100,链式定基)",
       "column": null,
       "indicatorId": "A010807",
-      "availableRange": "2006-01:2026-04",
+      "availableRange": "2006-01:2026-05",
       "source": "国家统计局(data.stats.gov.cn)",
       "frequency": "月",
-      "updatedAt": "2026-04",
+      "updatedAt": "2026-05",
       "rebaseBaseMonth": "2006-01",
       "rebaseBaseValue": 100,
       "regCode": "340800",
@@ -676,10 +677,10 @@
       "metricName": "福州:二手住宅销售价格指数(上月=100,链式定基)",
       "column": null,
       "indicatorId": "A010807",
-      "availableRange": "2006-01:2026-04",
+      "availableRange": "2006-01:2026-05",
       "source": "国家统计局(data.stats.gov.cn)",
       "frequency": "月",
-      "updatedAt": "2026-04",
+      "updatedAt": "2026-05",
       "rebaseBaseMonth": "2006-01",
       "rebaseBaseValue": 100,
       "regCode": "350100",
@@ -691,10 +692,10 @@
       "metricName": "厦门:二手住宅销售价格指数(上月=100,链式定基)",
       "column": null,
       "indicatorId": "A010807",
-      "availableRange": "2006-01:2026-04",
+      "availableRange": "2006-01:2026-05",
       "source": "国家统计局(data.stats.gov.cn)",
       "frequency": "月",
-      "updatedAt": "2026-04",
+      "updatedAt": "2026-05",
       "rebaseBaseMonth": "2006-01",
       "rebaseBaseValue": 100,
       "regCode": "350200",
@@ -706,10 +707,10 @@
       "metricName": "泉州:二手住宅销售价格指数(上月=100,链式定基)",
       "column": null,
       "indicatorId": "A010807",
-      "availableRange": "2006-01:2026-04",
+      "availableRange": "2006-01:2026-05",
       "source": "国家统计局(data.stats.gov.cn)",
       "frequency": "月",
-      "updatedAt": "2026-04",
+      "updatedAt": "2026-05",
       "rebaseBaseMonth": "2006-01",
       "rebaseBaseValue": 100,
       "regCode": "350500",
@@ -721,10 +722,10 @@
       "metricName": "南昌:二手住宅销售价格指数(上月=100,链式定基)",
       "column": null,
       "indicatorId": "A010807",
-      "availableRange": "2006-01:2026-04",
+      "availableRange": "2006-01:2026-05",
       "source": "国家统计局(data.stats.gov.cn)",
       "frequency": "月",
-      "updatedAt": "2026-04",
+      "updatedAt": "2026-05",
       "rebaseBaseMonth": "2006-01",
       "rebaseBaseValue": 100,
       "regCode": "360100",
@@ -736,10 +737,10 @@
       "metricName": "九江:二手住宅销售价格指数(上月=100,链式定基)",
       "column": null,
       "indicatorId": "A010807",
-      "availableRange": "2006-01:2026-04",
+      "availableRange": "2006-01:2026-05",
       "source": "国家统计局(data.stats.gov.cn)",
       "frequency": "月",
-      "updatedAt": "2026-04",
+      "updatedAt": "2026-05",
       "rebaseBaseMonth": "2006-01",
       "rebaseBaseValue": 100,
       "regCode": "360400",
@@ -751,10 +752,10 @@
       "metricName": "赣州:二手住宅销售价格指数(上月=100,链式定基)",
       "column": null,
       "indicatorId": "A010807",
-      "availableRange": "2006-01:2026-04",
+      "availableRange": "2006-01:2026-05",
       "source": "国家统计局(data.stats.gov.cn)",
       "frequency": "月",
-      "updatedAt": "2026-04",
+      "updatedAt": "2026-05",
       "rebaseBaseMonth": "2006-01",
       "rebaseBaseValue": 100,
       "regCode": "360700",
@@ -766,10 +767,10 @@
       "metricName": "济南:二手住宅销售价格指数(上月=100,链式定基)",
       "column": null,
       "indicatorId": "A010807",
-      "availableRange": "2006-01:2026-04",
+      "availableRange": "2006-01:2026-05",
       "source": "国家统计局(data.stats.gov.cn)",
       "frequency": "月",
-      "updatedAt": "2026-04",
+      "updatedAt": "2026-05",
       "rebaseBaseMonth": "2006-01",
       "rebaseBaseValue": 100,
       "regCode": "370100",
@@ -781,10 +782,10 @@
       "metricName": "青岛:二手住宅销售价格指数(上月=100,链式定基)",
       "column": null,
       "indicatorId": "A010807",
-      "availableRange": "2006-01:2026-04",
+      "availableRange": "2006-01:2026-05",
       "source": "国家统计局(data.stats.gov.cn)",
       "frequency": "月",
-      "updatedAt": "2026-04",
+      "updatedAt": "2026-05",
       "rebaseBaseMonth": "2006-01",
       "rebaseBaseValue": 100,
       "regCode": "370200",
@@ -796,10 +797,10 @@
       "metricName": "烟台:二手住宅销售价格指数(上月=100,链式定基)",
       "column": null,
       "indicatorId": "A010807",
-      "availableRange": "2006-01:2026-04",
+      "availableRange": "2006-01:2026-05",
       "source": "国家统计局(data.stats.gov.cn)",
       "frequency": "月",
-      "updatedAt": "2026-04",
+      "updatedAt": "2026-05",
       "rebaseBaseMonth": "2006-01",
       "rebaseBaseValue": 100,
       "regCode": "370600",
@@ -811,10 +812,10 @@
       "metricName": "济宁:二手住宅销售价格指数(上月=100,链式定基)",
       "column": null,
       "indicatorId": "A010807",
-      "availableRange": "2006-01:2026-04",
+      "availableRange": "2006-01:2026-05",
       "source": "国家统计局(data.stats.gov.cn)",
       "frequency": "月",
-      "updatedAt": "2026-04",
+      "updatedAt": "2026-05",
       "rebaseBaseMonth": "2006-01",
       "rebaseBaseValue": 100,
       "regCode": "370800",
@@ -826,10 +827,10 @@
       "metricName": "郑州:二手住宅销售价格指数(上月=100,链式定基)",
       "column": null,
       "indicatorId": "A010807",
-      "availableRange": "2006-01:2026-04",
+      "availableRange": "2006-01:2026-05",
       "source": "国家统计局(data.stats.gov.cn)",
       "frequency": "月",
-      "updatedAt": "2026-04",
+      "updatedAt": "2026-05",
       "rebaseBaseMonth": "2006-01",
       "rebaseBaseValue": 100,
       "regCode": "410100",
@@ -841,10 +842,10 @@
       "metricName": "洛阳:二手住宅销售价格指数(上月=100,链式定基)",
       "column": null,
       "indicatorId": "A010807",
-      "availableRange": "2006-01:2026-04",
+      "availableRange": "2006-01:2026-05",
       "source": "国家统计局(data.stats.gov.cn)",
       "frequency": "月",
-      "updatedAt": "2026-04",
+      "updatedAt": "2026-05",
       "rebaseBaseMonth": "2006-01",
       "rebaseBaseValue": 100,
       "regCode": "410300",
@@ -856,10 +857,10 @@
       "metricName": "平顶山:二手住宅销售价格指数(上月=100,链式定基)",
       "column": null,
       "indicatorId": "A010807",
-      "availableRange": "2006-01:2026-04",
+      "availableRange": "2006-01:2026-05",
       "source": "国家统计局(data.stats.gov.cn)",
       "frequency": "月",
-      "updatedAt": "2026-04",
+      "updatedAt": "2026-05",
       "rebaseBaseMonth": "2006-01",
       "rebaseBaseValue": 100,
       "regCode": "410400",
@@ -871,10 +872,10 @@
       "metricName": "武汉:二手住宅销售价格指数(上月=100,链式定基)",
       "column": null,
       "indicatorId": "A010807",
-      "availableRange": "2006-01:2026-04",
+      "availableRange": "2006-01:2026-05",
       "source": "国家统计局(data.stats.gov.cn)",
       "frequency": "月",
-      "updatedAt": "2026-04",
+      "updatedAt": "2026-05",
       "rebaseBaseMonth": "2006-01",
       "rebaseBaseValue": 100,
       "regCode": "420100",
@@ -886,10 +887,10 @@
       "metricName": "宜昌:二手住宅销售价格指数(上月=100,链式定基)",
       "column": null,
       "indicatorId": "A010807",
-      "availableRange": "2006-01:2026-04",
+      "availableRange": "2006-01:2026-05",
       "source": "国家统计局(data.stats.gov.cn)",
       "frequency": "月",
-      "updatedAt": "2026-04",
+      "updatedAt": "2026-05",
       "rebaseBaseMonth": "2006-01",
       "rebaseBaseValue": 100,
       "regCode": "420500",
@@ -901,10 +902,10 @@
       "metricName": "襄阳:二手住宅销售价格指数(上月=100,链式定基)",
       "column": null,
       "indicatorId": "A010807",
-      "availableRange": "2006-01:2026-04",
+      "availableRange": "2006-01:2026-05",
       "source": "国家统计局(data.stats.gov.cn)",
       "frequency": "月",
-      "updatedAt": "2026-04",
+      "updatedAt": "2026-05",
       "rebaseBaseMonth": "2006-01",
       "rebaseBaseValue": 100,
       "regCode": "420600",
@@ -916,10 +917,10 @@
       "metricName": "长沙:二手住宅销售价格指数(上月=100,链式定基)",
       "column": null,
       "indicatorId": "A010807",
-      "availableRange": "2006-01:2026-04",
+      "availableRange": "2006-01:2026-05",
       "source": "国家统计局(data.stats.gov.cn)",
       "frequency": "月",
-      "updatedAt": "2026-04",
+      "updatedAt": "2026-05",
       "rebaseBaseMonth": "2006-01",
       "rebaseBaseValue": 100,
       "regCode": "430100",
@@ -931,10 +932,10 @@
       "metricName": "岳阳:二手住宅销售价格指数(上月=100,链式定基)",
       "column": null,
       "indicatorId": "A010807",
-      "availableRange": "2006-01:2026-04",
+      "availableRange": "2006-01:2026-05",
       "source": "国家统计局(data.stats.gov.cn)",
       "frequency": "月",
-      "updatedAt": "2026-04",
+      "updatedAt": "2026-05",
       "rebaseBaseMonth": "2006-01",
       "rebaseBaseValue": 100,
       "regCode": "430600",
@@ -946,10 +947,10 @@
       "metricName": "常德:二手住宅销售价格指数(上月=100,链式定基)",
       "column": null,
       "indicatorId": "A010807",
-      "availableRange": "2006-01:2026-04",
+      "availableRange": "2006-01:2026-05",
       "source": "国家统计局(data.stats.gov.cn)",
       "frequency": "月",
-      "updatedAt": "2026-04",
+      "updatedAt": "2026-05",
       "rebaseBaseMonth": "2006-01",
       "rebaseBaseValue": 100,
       "regCode": "430700",
@@ -961,10 +962,10 @@
       "metricName": "广州:二手住宅销售价格指数(上月=100,链式定基)",
       "column": null,
       "indicatorId": "A010807",
-      "availableRange": "2006-01:2026-04",
+      "availableRange": "2006-01:2026-05",
       "source": "国家统计局(data.stats.gov.cn)",
       "frequency": "月",
-      "updatedAt": "2026-04",
+      "updatedAt": "2026-05",
       "rebaseBaseMonth": "2006-01",
       "rebaseBaseValue": 100,
       "regCode": "440100",
@@ -976,10 +977,10 @@
       "metricName": "韶关:二手住宅销售价格指数(上月=100,链式定基)",
       "column": null,
       "indicatorId": "A010807",
-      "availableRange": "2006-01:2026-04",
+      "availableRange": "2006-01:2026-05",
       "source": "国家统计局(data.stats.gov.cn)",
       "frequency": "月",
-      "updatedAt": "2026-04",
+      "updatedAt": "2026-05",
       "rebaseBaseMonth": "2006-01",
       "rebaseBaseValue": 100,
       "regCode": "440200",
@@ -991,10 +992,10 @@
       "metricName": "深圳:二手住宅销售价格指数(上月=100,链式定基)",
       "column": null,
       "indicatorId": "A010807",
-      "availableRange": "2006-01:2026-04",
+      "availableRange": "2006-01:2026-05",
       "source": "国家统计局(data.stats.gov.cn)",
       "frequency": "月",
-      "updatedAt": "2026-04",
+      "updatedAt": "2026-05",
       "rebaseBaseMonth": "2006-01",
       "rebaseBaseValue": 100,
       "regCode": "440300",
@@ -1006,10 +1007,10 @@
       "metricName": "湛江:二手住宅销售价格指数(上月=100,链式定基)",
       "column": null,
       "indicatorId": "A010807",
-      "availableRange": "2006-01:2026-04",
+      "availableRange": "2006-01:2026-05",
       "source": "国家统计局(data.stats.gov.cn)",
       "frequency": "月",
-      "updatedAt": "2026-04",
+      "updatedAt": "2026-05",
       "rebaseBaseMonth": "2006-01",
       "rebaseBaseValue": 100,
       "regCode": "440800",
@@ -1021,10 +1022,10 @@
       "metricName": "惠州:二手住宅销售价格指数(上月=100,链式定基)",
       "column": null,
       "indicatorId": "A010807",
-      "availableRange": "2006-01:2026-04",
+      "availableRange": "2006-01:2026-05",
       "source": "国家统计局(data.stats.gov.cn)",
       "frequency": "月",
-      "updatedAt": "2026-04",
+      "updatedAt": "2026-05",
       "rebaseBaseMonth": "2006-01",
       "rebaseBaseValue": 100,
       "regCode": "441300",
@@ -1036,10 +1037,10 @@
       "metricName": "南宁:二手住宅销售价格指数(上月=100,链式定基)",
       "column": null,
       "indicatorId": "A010807",
-      "availableRange": "2006-01:2026-04",
+      "availableRange": "2006-01:2026-05",
       "source": "国家统计局(data.stats.gov.cn)",
       "frequency": "月",
-      "updatedAt": "2026-04",
+      "updatedAt": "2026-05",
       "rebaseBaseMonth": "2006-01",
       "rebaseBaseValue": 100,
       "regCode": "450100",
@@ -1051,10 +1052,10 @@
       "metricName": "桂林:二手住宅销售价格指数(上月=100,链式定基)",
       "column": null,
       "indicatorId": "A010807",
-      "availableRange": "2006-01:2026-04",
+      "availableRange": "2006-01:2026-05",
       "source": "国家统计局(data.stats.gov.cn)",
       "frequency": "月",
-      "updatedAt": "2026-04",
+      "updatedAt": "2026-05",
       "rebaseBaseMonth": "2006-01",
       "rebaseBaseValue": 100,
       "regCode": "450300",
@@ -1066,10 +1067,10 @@
       "metricName": "北海:二手住宅销售价格指数(上月=100,链式定基)",
       "column": null,
       "indicatorId": "A010807",
-      "availableRange": "2006-01:2026-04",
+      "availableRange": "2006-01:2026-05",
       "source": "国家统计局(data.stats.gov.cn)",
       "frequency": "月",
-      "updatedAt": "2026-04",
+      "updatedAt": "2026-05",
       "rebaseBaseMonth": "2006-01",
       "rebaseBaseValue": 100,
       "regCode": "450500",
@@ -1081,10 +1082,10 @@
       "metricName": "海口:二手住宅销售价格指数(上月=100,链式定基)",
       "column": null,
       "indicatorId": "A010807",
-      "availableRange": "2006-01:2026-04",
+      "availableRange": "2006-01:2026-05",
       "source": "国家统计局(data.stats.gov.cn)",
       "frequency": "月",
-      "updatedAt": "2026-04",
+      "updatedAt": "2026-05",
       "rebaseBaseMonth": "2006-01",
       "rebaseBaseValue": 100,
       "regCode": "460100",
@@ -1096,10 +1097,10 @@
       "metricName": "三亚:二手住宅销售价格指数(上月=100,链式定基)",
       "column": null,
       "indicatorId": "A010807",
-      "availableRange": "2006-01:2026-04",
+      "availableRange": "2006-01:2026-05",
       "source": "国家统计局(data.stats.gov.cn)",
       "frequency": "月",
-      "updatedAt": "2026-04",
+      "updatedAt": "2026-05",
       "rebaseBaseMonth": "2006-01",
       "rebaseBaseValue": 100,
       "regCode": "460200",
@@ -1111,10 +1112,10 @@
       "metricName": "重庆:二手住宅销售价格指数(上月=100,链式定基)",
       "column": null,
       "indicatorId": "A010807",
-      "availableRange": "2006-01:2026-04",
+      "availableRange": "2006-01:2026-05",
       "source": "国家统计局(data.stats.gov.cn)",
       "frequency": "月",
-      "updatedAt": "2026-04",
+      "updatedAt": "2026-05",
       "rebaseBaseMonth": "2006-01",
       "rebaseBaseValue": 100,
       "regCode": "500000",
@@ -1126,10 +1127,10 @@
       "metricName": "成都:二手住宅销售价格指数(上月=100,链式定基)",
       "column": null,
       "indicatorId": "A010807",
-      "availableRange": "2006-01:2026-04",
+      "availableRange": "2006-01:2026-05",
       "source": "国家统计局(data.stats.gov.cn)",
       "frequency": "月",
-      "updatedAt": "2026-04",
+      "updatedAt": "2026-05",
       "rebaseBaseMonth": "2006-01",
       "rebaseBaseValue": 100,
       "regCode": "510100",
@@ -1141,10 +1142,10 @@
       "metricName": "泸州:二手住宅销售价格指数(上月=100,链式定基)",
       "column": null,
       "indicatorId": "A010807",
-      "availableRange": "2006-01:2026-04",
+      "availableRange": "2006-01:2026-05",
       "source": "国家统计局(data.stats.gov.cn)",
       "frequency": "月",
-      "updatedAt": "2026-04",
+      "updatedAt": "2026-05",
       "rebaseBaseMonth": "2006-01",
       "rebaseBaseValue": 100,
       "regCode": "510500",
@@ -1156,10 +1157,10 @@
       "metricName": "南充:二手住宅销售价格指数(上月=100,链式定基)",
       "column": null,
       "indicatorId": "A010807",
-      "availableRange": "2006-01:2026-04",
+      "availableRange": "2006-01:2026-05",
       "source": "国家统计局(data.stats.gov.cn)",
       "frequency": "月",
-      "updatedAt": "2026-04",
+      "updatedAt": "2026-05",
       "rebaseBaseMonth": "2006-01",
       "rebaseBaseValue": 100,
       "regCode": "511300",
@@ -1171,10 +1172,10 @@
       "metricName": "贵阳:二手住宅销售价格指数(上月=100,链式定基)",
       "column": null,
       "indicatorId": "A010807",
-      "availableRange": "2006-01:2026-04",
+      "availableRange": "2006-01:2026-05",
       "source": "国家统计局(data.stats.gov.cn)",
       "frequency": "月",
-      "updatedAt": "2026-04",
+      "updatedAt": "2026-05",
       "rebaseBaseMonth": "2006-01",
       "rebaseBaseValue": 100,
       "regCode": "520100",
@@ -1186,10 +1187,10 @@
       "metricName": "遵义:二手住宅销售价格指数(上月=100,链式定基)",
       "column": null,
       "indicatorId": "A010807",
-      "availableRange": "2006-01:2026-04",
+      "availableRange": "2006-01:2026-05",
       "source": "国家统计局(data.stats.gov.cn)",
       "frequency": "月",
-      "updatedAt": "2026-04",
+      "updatedAt": "2026-05",
       "rebaseBaseMonth": "2006-01",
       "rebaseBaseValue": 100,
       "regCode": "520300",
@@ -1201,10 +1202,10 @@
       "metricName": "昆明:二手住宅销售价格指数(上月=100,链式定基)",
       "column": null,
       "indicatorId": "A010807",
-      "availableRange": "2006-01:2026-04",
+      "availableRange": "2006-01:2026-05",
       "source": "国家统计局(data.stats.gov.cn)",
       "frequency": "月",
-      "updatedAt": "2026-04",
+      "updatedAt": "2026-05",
       "rebaseBaseMonth": "2006-01",
       "rebaseBaseValue": 100,
       "regCode": "530100",
@@ -1216,10 +1217,10 @@
       "metricName": "大理:二手住宅销售价格指数(上月=100,链式定基)",
       "column": null,
       "indicatorId": "A010807",
-      "availableRange": "2006-01:2026-04",
+      "availableRange": "2006-01:2026-05",
       "source": "国家统计局(data.stats.gov.cn)",
       "frequency": "月",
-      "updatedAt": "2026-04",
+      "updatedAt": "2026-05",
       "rebaseBaseMonth": "2006-01",
       "rebaseBaseValue": 100,
       "regCode": "532900",
@@ -1231,10 +1232,10 @@
       "metricName": "西安:二手住宅销售价格指数(上月=100,链式定基)",
       "column": null,
       "indicatorId": "A010807",
-      "availableRange": "2006-01:2026-04",
+      "availableRange": "2006-01:2026-05",
       "source": "国家统计局(data.stats.gov.cn)",
       "frequency": "月",
-      "updatedAt": "2026-04",
+      "updatedAt": "2026-05",
       "rebaseBaseMonth": "2006-01",
       "rebaseBaseValue": 100,
       "regCode": "610100",
@@ -1246,10 +1247,10 @@
       "metricName": "兰州:二手住宅销售价格指数(上月=100,链式定基)",
       "column": null,
       "indicatorId": "A010807",
-      "availableRange": "2006-01:2026-04",
+      "availableRange": "2006-01:2026-05",
       "source": "国家统计局(data.stats.gov.cn)",
       "frequency": "月",
-      "updatedAt": "2026-04",
+      "updatedAt": "2026-05",
       "rebaseBaseMonth": "2006-01",
       "rebaseBaseValue": 100,
       "regCode": "620100",
@@ -1261,10 +1262,10 @@
       "metricName": "西宁:二手住宅销售价格指数(上月=100,链式定基)",
       "column": null,
       "indicatorId": "A010807",
-      "availableRange": "2006-01:2026-04",
+      "availableRange": "2006-01:2026-05",
       "source": "国家统计局(data.stats.gov.cn)",
       "frequency": "月",
-      "updatedAt": "2026-04",
+      "updatedAt": "2026-05",
       "rebaseBaseMonth": "2006-01",
       "rebaseBaseValue": 100,
       "regCode": "630100",
@@ -1276,10 +1277,10 @@
       "metricName": "银川:二手住宅销售价格指数(上月=100,链式定基)",
       "column": null,
       "indicatorId": "A010807",
-      "availableRange": "2006-01:2026-04",
+      "availableRange": "2006-01:2026-05",
       "source": "国家统计局(data.stats.gov.cn)",
       "frequency": "月",
-      "updatedAt": "2026-04",
+      "updatedAt": "2026-05",
       "rebaseBaseMonth": "2006-01",
       "rebaseBaseValue": 100,
       "regCode": "640100",
@@ -1291,10 +1292,10 @@
       "metricName": "乌鲁木齐:二手住宅销售价格指数(上月=100,链式定基)",
       "column": null,
       "indicatorId": "A010807",
-      "availableRange": "2006-01:2026-04",
+      "availableRange": "2006-01:2026-05",
       "source": "国家统计局(data.stats.gov.cn)",
       "frequency": "月",
-      "updatedAt": "2026-04",
+      "updatedAt": "2026-05",
       "rebaseBaseMonth": "2006-01",
       "rebaseBaseValue": 100,
       "regCode": "650100",
@@ -1546,7 +1547,8 @@
       248.205476,
       248.950092,
       250.443793,
-      251.445568
+      251.445568,
+      251.697014
     ],
     "city_nbs_120000": [
       100,
@@ -1792,7 +1794,8 @@
       141.410754,
       140.7037,
       140.422293,
-      140.001026
+      140.001026,
+      139.441022
     ],
     "city_nbs_130100": [
       100,
@@ -2038,7 +2041,8 @@
       114.735929,
       114.276985,
       113.934154,
-      113.364483
+      113.364483,
+      113.137754
     ],
     "city_nbs_130200": [
       100,
@@ -2284,7 +2288,8 @@
       127.688507,
       126.794687,
       126.287508,
-      125.782358
+      125.782358,
+      125.153446
     ],
     "city_nbs_130300": [
       100,
@@ -2530,7 +2535,8 @@
       114.81871,
       113.90016,
       113.102859,
-      112.424242
+      112.424242,
+      111.974545
     ],
     "city_nbs_140100": [
       100,
@@ -2776,7 +2782,8 @@
       137.814917,
       137.125842,
       136.577339,
-      136.167607
+      136.167607,
+      135.486769
     ],
     "city_nbs_150100": [
       100,
@@ -3022,7 +3029,8 @@
       109.009198,
       108.137124,
       107.704576,
-      107.381462
+      107.381462,
+      106.844555
     ],
     "city_nbs_150200": [
       100,
@@ -3268,7 +3276,8 @@
       85.488408,
       84.975478,
       84.720552,
-      84.551111
+      84.551111,
+      84.128355
     ],
     "city_nbs_210100": [
       100,
@@ -3514,6 +3523,7 @@
       165.17305,
       165.17305,
       165.338223,
+      165.503561,
       165.503561
     ],
     "city_nbs_210200": [
@@ -3760,7 +3770,8 @@
       135.473814,
       135.202866,
       134.797257,
-      134.797257
+      134.797257,
+      134.932054
     ],
     "city_nbs_210600": [
       100,
@@ -4006,7 +4017,8 @@
       109.709329,
       109.48991,
       109.38042,
-      109.27104
+      109.27104,
+      109.052498
     ],
     "city_nbs_210700": [
       100,
@@ -4252,7 +4264,8 @@
       84.223186,
       83.80207,
       83.80207,
-      83.718268
+      83.718268,
+      83.550831
     ],
     "city_nbs_220100": [
       100,
@@ -4498,7 +4511,8 @@
       128.179865,
       127.538966,
       127.411427,
-      127.156604
+      127.156604,
+      126.902291
     ],
     "city_nbs_220200": [
       100,
@@ -4744,7 +4758,8 @@
       111.23193,
       110.898234,
       110.676438,
-      110.233732
+      110.233732,
+      110.123498
     ],
     "city_nbs_230100": [
       100,
@@ -4990,7 +5005,8 @@
       143.987425,
       143.555463,
       143.268352,
-      142.695279
+      142.695279,
+      141.981803
     ],
     "city_nbs_231000": [
       100,
@@ -5236,7 +5252,8 @@
       82.5069,
       82.176872,
       82.094695,
-      81.848411
+      81.848411,
+      81.684714
     ],
     "city_nbs_310000": [
       100,
@@ -5482,7 +5499,8 @@
       206.495206,
       206.908196,
       207.735829,
-      209.18998
+      209.18998,
+      210.44512
     ],
     "city_nbs_320100": [
       100,
@@ -5728,7 +5746,8 @@
       148.833322,
       148.684489,
       148.981858,
-      148.981858
+      148.981858,
+      148.832876
     ],
     "city_nbs_320200": [
       100,
@@ -5974,7 +5993,8 @@
       192.568712,
       191.605868,
       191.98908,
-      191.98908
+      191.98908,
+      191.797091
     ],
     "city_nbs_320300": [
       100,
@@ -6220,7 +6240,8 @@
       114.157259,
       113.814787,
       114.156231,
-      114.727012
+      114.727012,
+      115.071193
     ],
     "city_nbs_321000": [
       100,
@@ -6466,7 +6487,8 @@
       118.166697,
       117.221363,
       116.518035,
-      115.585891
+      115.585891,
+      114.892376
     ],
     "city_nbs_330100": [
       100,
@@ -6712,6 +6734,7 @@
       190.549961,
       190.168861,
       189.978692,
+      189.788713,
       189.788713
     ],
     "city_nbs_330200": [
@@ -6958,7 +6981,8 @@
       133.430011,
       133.296581,
       133.296581,
-      133.429878
+      133.429878,
+      133.563308
     ],
     "city_nbs_330300": [
       100,
@@ -7204,7 +7228,8 @@
       100.832274,
       100.529777,
       100.429247,
-      100.127959
+      100.127959,
+      99.927703
     ],
     "city_nbs_330700": [
       100,
@@ -7450,7 +7475,8 @@
       111.608774,
       110.827513,
       110.605858,
-      110.27404
+      110.27404,
+      110.053492
     ],
     "city_nbs_340100": [
       100,
@@ -7696,6 +7722,7 @@
       172.05088,
       171.190626,
       171.533007,
+      171.70454,
       171.70454
     ],
     "city_nbs_340300": [
@@ -7942,7 +7969,8 @@
       164.418605,
       163.596512,
       163.105722,
-      162.779511
+      162.779511,
+      162.291172
     ],
     "city_nbs_340800": [
       100,
@@ -8188,7 +8216,8 @@
       95.823599,
       95.152834,
       95.057681,
-      94.962623
+      94.962623,
+      94.772698
     ],
     "city_nbs_350100": [
       100,
@@ -8434,7 +8463,8 @@
       136.109651,
       135.837432,
       135.294082,
-      135.158788
+      135.158788,
+      134.753312
     ],
     "city_nbs_350200": [
       100,
@@ -8680,7 +8710,8 @@
       172.468703,
       172.468703,
       172.641172,
-      172.986454
+      172.986454,
+      173.15944
     ],
     "city_nbs_350500": [
       100,
@@ -8926,7 +8957,8 @@
       102.272767,
       102.068221,
       101.762016,
-      101.660254
+      101.660254,
+      101.456933
     ],
     "city_nbs_360100": [
       100,
@@ -9172,7 +9204,8 @@
       151.32491,
       150.870935,
       150.418322,
-      149.816649
+      149.816649,
+      149.217382
     ],
     "city_nbs_360400": [
       100,
@@ -9418,7 +9451,8 @@
       156.763147,
       155.979331,
       154.887476,
-      154.267926
+      154.267926,
+      153.805122
     ],
     "city_nbs_360700": [
       100,
@@ -9664,7 +9698,8 @@
       130.966109,
       130.049346,
       129.659198,
-      129.39988
+      129.39988,
+      128.623481
     ],
     "city_nbs_370100": [
       100,
@@ -9910,7 +9945,8 @@
       126.885666,
       126.631895,
       126.758527,
-      126.50501
+      126.50501,
+      126.252
     ],
     "city_nbs_370200": [
       100,
@@ -10156,7 +10192,8 @@
       119.649613,
       118.931715,
       118.931715,
-      118.812783
+      118.812783,
+      118.575157
     ],
     "city_nbs_370600": [
       100,
@@ -10402,7 +10439,8 @@
       129.570885,
       128.663889,
       128.277897,
-      128.149619
+      128.149619,
+      128.021469
     ],
     "city_nbs_370800": [
       100,
@@ -10648,7 +10686,8 @@
       159.231896,
       158.276505,
       157.959952,
-      157.644032
+      157.644032,
+      157.1711
     ],
     "city_nbs_410100": [
       100,
@@ -10894,7 +10933,8 @@
       139.690345,
       138.991893,
       138.713909,
-      138.575195
+      138.575195,
+      138.71377
     ],
     "city_nbs_410300": [
       100,
@@ -11140,7 +11180,8 @@
       131.083639,
       130.428221,
       129.645652,
-      128.997424
+      128.997424,
+      128.223439
     ],
     "city_nbs_410400": [
       100,
@@ -11386,7 +11427,8 @@
       121.186285,
       120.459167,
       119.615953,
-      118.659025
+      118.659025,
+      118.303048
     ],
     "city_nbs_420100": [
       100,
@@ -11632,7 +11674,8 @@
       143.722005,
       142.572229,
       141.716796,
-      141.858513
+      141.858513,
+      141.291079
     ],
     "city_nbs_420500": [
       100,
@@ -11878,7 +11921,8 @@
       113.068168,
       112.502827,
       112.165319,
-      111.828823
+      111.828823,
+      111.716994
     ],
     "city_nbs_420600": [
       100,
@@ -12124,7 +12168,8 @@
       140.489652,
       139.365735,
       138.529541,
-      138.113952
+      138.113952,
+      137.285268
     ],
     "city_nbs_430100": [
       100,
@@ -12370,7 +12415,8 @@
       194.041163,
       192.488834,
       192.103856,
-      191.527544
+      191.527544,
+      190.378379
     ],
     "city_nbs_430600": [
       100,
@@ -12616,7 +12662,8 @@
       147.601751,
       146.568539,
       145.835696,
-      144.960682
+      144.960682,
+      144.380839
     ],
     "city_nbs_430700": [
       100,
@@ -12862,7 +12909,8 @@
       119.282691,
       118.80556,
       118.092727,
-      117.620356
+      117.620356,
+      117.032254
     ],
     "city_nbs_440100": [
       100,
@@ -13108,7 +13156,8 @@
       171.3483,
       170.491558,
       170.832541,
-      171.174206
+      171.174206,
+      171.34538
     ],
     "city_nbs_440200": [
       100,
@@ -13354,7 +13403,8 @@
       104.188753,
       103.876187,
       103.149054,
-      102.427011
+      102.427011,
+      101.914876
     ],
     "city_nbs_440300": [
       100,
@@ -13600,7 +13650,8 @@
       275.085329,
       273.984988,
       275.080928,
-      275.906171
+      275.906171,
+      277.561608
     ],
     "city_nbs_440800": [
       100,
@@ -13846,7 +13897,8 @@
       145.105114,
       144.669799,
       143.94645,
-      143.226718
+      143.226718,
+      142.367358
     ],
     "city_nbs_441300": [
       100,
@@ -14092,7 +14144,8 @@
       135.268818,
       134.457205,
       133.650462,
-      133.249511
+      133.249511,
+      132.983012
     ],
     "city_nbs_450100": [
       100,
@@ -14338,7 +14391,8 @@
       145.339934,
       144.613234,
       143.745555,
-      143.026827
+      143.026827,
+      142.311693
     ],
     "city_nbs_450300": [
       100,
@@ -14584,7 +14638,8 @@
       102.124363,
       101.409492,
       100.902445,
-      100.29703
+      100.29703,
+      99.795545
     ],
     "city_nbs_450500": [
       100,
@@ -14830,7 +14885,8 @@
       109.500809,
       108.843804,
       108.299585,
-      107.758087
+      107.758087,
+      107.327055
     ],
     "city_nbs_460100": [
       100,
@@ -15076,7 +15132,8 @@
       126.92561,
       126.164056,
       126.29022,
-      126.41651
+      126.41651,
+      125.658011
     ],
     "city_nbs_460200": [
       100,
@@ -15322,7 +15379,8 @@
       184.972213,
       184.787241,
       184.048092,
-      182.759755
+      182.759755,
+      181.663196
     ],
     "city_nbs_500000": [
       100,
@@ -15568,7 +15626,8 @@
       138.865898,
       138.588166,
       138.726754,
-      138.726754
+      138.726754,
+      138.865481
     ],
     "city_nbs_510100": [
       100,
@@ -15814,7 +15873,8 @@
       164.564486,
       164.235357,
       163.742651,
-      163.578908
+      163.578908,
+      162.924592
     ],
     "city_nbs_510500": [
       100,
@@ -16060,7 +16120,8 @@
       112.02295,
       111.014743,
       110.126625,
-      109.465865
+      109.465865,
+      108.699604
     ],
     "city_nbs_511300": [
       100,
@@ -16306,7 +16367,8 @@
       112.206386,
       111.75756,
       111.422287,
-      110.865176
+      110.865176,
+      110.53258
     ],
     "city_nbs_520100": [
       100,
@@ -16552,7 +16614,8 @@
       121.578748,
       121.092433,
       120.729156,
-      120.12551
+      120.12551,
+      119.765133
     ],
     "city_nbs_520300": [
       100,
@@ -16798,7 +16861,8 @@
       168.356764,
       167.683337,
       166.677237,
-      166.010528
+      166.010528,
+      164.848454
     ],
     "city_nbs_530100": [
       100,
@@ -17044,7 +17108,8 @@
       155.326827,
       154.084212,
       153.467875,
-      152.700536
+      152.700536,
+      152.242434
     ],
     "city_nbs_532900": [
       100,
@@ -17290,7 +17355,8 @@
       116.302693,
       115.72118,
       115.026853,
-      114.451719
+      114.451719,
+      113.765009
     ],
     "city_nbs_610100": [
       100,
@@ -17536,7 +17602,8 @@
       125.725706,
       125.59998,
       125.59998,
-      126.10238
+      126.10238,
+      125.850175
     ],
     "city_nbs_620100": [
       100,
@@ -17782,7 +17849,8 @@
       148.030172,
       147.734112,
       147.586378,
-      147.291205
+      147.291205,
+      147.143914
     ],
     "city_nbs_630100": [
       100,
@@ -18028,7 +18096,8 @@
       173.875366,
       173.527615,
       173.18056,
-      172.661018
+      172.661018,
+      172.488357
     ],
     "city_nbs_640100": [
       100,
@@ -18274,7 +18343,8 @@
       147.738646,
       147.29543,
       147.000839,
-      146.265835
+      146.265835,
+      145.973303
     ],
     "city_nbs_650100": [
       100,
@@ -18520,20 +18590,21 @@
       190.963447,
       190.199593,
       189.438795,
-      189.249356
+      189.249356,
+      188.492359
     ]
   },
   "sourceName": "国家统计局70城二手住宅销售价格指数(上月=100,链式定基)",
   "indicatorId": "A010807",
   "dbcode": "csyd",
   "cityCount": 70,
-  "requestedMaxMonth": "2026-04",
-  "outputMaxMonth": "2026-04",
+  "requestedMaxMonth": "2026-06",
+  "outputMaxMonth": "2026-05",
   "latestMonthFromApi": "2026-01",
   "excludedRegCodes": [
     "540100"
   ],
-  "latestMonthFromOfficialRelease": "2026-04",
-  "officialReleaseUrl": "https://www.stats.gov.cn/sj/zxfb/202605/t20260518_1963715.html",
+  "latestMonthFromOfficialRelease": "2026-05",
+  "officialReleaseUrl": "https://www.stats.gov.cn/sj/zxfb/202606/t20260616_1963946.html",
   "officialReleaseTitle": "2026年2月份70个大中城市商品住宅销售价格变动情况"
 }
