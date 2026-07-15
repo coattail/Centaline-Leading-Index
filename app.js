@@ -1,7 +1,7 @@
 let raw = null;
 let activeSourceMeta = null;
 
-const DATA_ASSET_VERSION = "20260518-nbs70-dark-labels";
+const DATA_ASSET_VERSION = "20260715-housing-data-refresh";
 
 const SOURCE_CONFIGS = [
   {
