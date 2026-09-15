@@ -1,7 +1,7 @@
 let raw = null;
 let activeSourceMeta = null;
 
-const DATA_ASSET_VERSION = "20260817-nbs-70city-july";
+const DATA_ASSET_VERSION = "20260915-housing-data-refresh";
 
 const SOURCE_CONFIGS = [
   {

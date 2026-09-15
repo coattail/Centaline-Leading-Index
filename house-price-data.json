@@ -1,9 +1,9 @@
 {
-  "sourceFile": "/Users/yuwan/Downloads/全面 二手房价格202607.xlsx",
-  "generatedAt": "2026-08-17T05:16:17.108Z",
+  "sourceFile": "/Users/coattail/Downloads/全面 二手房价格202608.xlsx",
+  "generatedAt": "2026-09-15T09:49:34.404Z",
   "sheetName": "中国_天津_中原领先指数",
   "baseMonth": "2008-01",
-  "rowsParsed": 223,
+  "rowsParsed": 224,
   "dates": [
     "2008-01",
     "2008-02",
@@ -227,7 +227,8 @@
     "2026-04",
     "2026-05",
     "2026-06",
-    "2026-07"
+    "2026-07",
+    "2026-08"
   ],
   "cities": [
     {
@@ -236,7 +237,7 @@
       "metricName": "中国:天津:中原领先指数",
       "column": "B",
       "indicatorId": "S0109940",
-      "availableRange": "2008-01:2026-07",
+      "availableRange": "2008-01:2026-08",
       "source": "中原地产",
       "frequency": "月",
       "updatedAt": "2026-08-17",
@@ -249,7 +250,7 @@
       "metricName": "中国:深圳:中原领先指数",
       "column": "D",
       "indicatorId": "S0109845",
-      "availableRange": "2008-01:2026-07",
+      "availableRange": "2008-01:2026-08",
       "source": "中原地产",
       "frequency": "月",
       "updatedAt": "2026-08-17",
@@ -262,7 +263,7 @@
       "metricName": "中国:广州:中原领先指数",
       "column": "E",
       "indicatorId": "S0109895",
-      "availableRange": "2008-01:2026-07",
+      "availableRange": "2008-01:2026-08",
       "source": "中原地产",
       "frequency": "月",
       "updatedAt": "2026-08-17",
@@ -275,7 +276,7 @@
       "metricName": "中国:北京:中原领先指数",
       "column": "F",
       "indicatorId": "S0109786",
-      "availableRange": "2008-01:2026-07",
+      "availableRange": "2008-01:2026-08",
       "source": "中原地产",
       "frequency": "月",
       "updatedAt": "2026-08-17",
@@ -288,7 +289,7 @@
       "metricName": "中国:上海:中原领先指数",
       "column": "G",
       "indicatorId": "S0070073",
-      "availableRange": "2008-01:2026-07",
+      "availableRange": "2008-01:2026-08",
       "source": "中原地产",
       "frequency": "月",
       "updatedAt": "2026-08-17",
@@ -301,10 +302,10 @@
       "metricName": "香港:中原城市领先指数(CCL按月)",
       "column": null,
       "indicatorId": "HK_CCL_MONTHLY",
-      "availableRange": "2008-01:2026-07",
+      "availableRange": "2008-01:2026-08",
       "source": "中原地产香港官网(CCL)",
       "frequency": "月(由周度取月末)",
-      "updatedAt": "2026-08-17",
+      "updatedAt": "2026-09-15",
       "rebaseBaseMonth": "2008-01",
       "rebaseBaseValue": 70.59
     }
@@ -533,7 +534,8 @@
       166.586157,
       165.707075,
       164.827992,
-      162.630286
+      162.630286,
+      160.87212
     ],
     "city_3": [
       100,
@@ -758,7 +760,8 @@
       324.951397,
       325.382367,
       322.796547,
-      320.641697
+      320.641697,
+      317.624907
     ],
     "city_4": [
       100,
@@ -983,7 +986,8 @@
       302.069099,
       301.576328,
       300.590784,
-      302.069099
+      302.069099,
+      301.576328
     ],
     "city_5": [
       100,
@@ -1208,7 +1212,8 @@
       277.718234,
       278.129668,
       278.541103,
-      277.718234
+      277.718234,
+      274.838193
     ],
     "city_6": [
       100,
@@ -1433,6 +1438,7 @@
       241.172507,
       243.380035,
       243.931918,
+      244.4838,
       244.4838
     ],
     "city_hk": [
@@ -1658,7 +1664,8 @@
       219.86117,
       223.74274,
       227.751806,
-      226.54767
+      226.54767,
+      229.522595
     ]
   }
 }
