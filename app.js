@@ -266,7 +266,7 @@ const CHART_THEME_STYLES = Object.freeze({
     sliderHandleBorderColor: "rgba(245, 164, 59, 0.95)",
     sliderHandleHoverColor: "rgba(255, 192, 105, 0.5)",
     sliderHandleHoverBorderColor: "rgba(255, 192, 105, 0.99)",
-    textMaskColor: "#09131b",
+    textMaskColor: "rgba(9, 19, 27, 0.62)",
     overlayTitleColor: "#FFFFFF",
     overlayLineColor: "#FFFFFF",
     overlayTextColor: "#FFFFFF",
