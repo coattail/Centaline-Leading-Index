@@ -53,8 +53,12 @@ function buildExpectedEvenlySampledLabels() {
   const dates = Array.isArray(data.dates) ? data.dates : [];
   assert.ok(dates.length > 0, "house-price-data.json should contain dates");
 
-  const step = Math.ceil((dates.length - 1) / 10);
-  return dates.filter((_, index) => index % step === 0 || index === dates.length - 1);
+  const targetLabelCount = Math.min(11, dates.length);
+  const lastIndex = dates.length - 1;
+  return Array.from({ length: targetLabelCount }, (_, index) => {
+    const ratio = targetLabelCount === 1 ? 0 : index / (targetLabelCount - 1);
+    return dates[Math.round(lastIndex * ratio)];
+  });
 }
 
 test("wide desktop view keeps evenly sampled x-axis labels visible", async (t) => {
