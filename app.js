@@ -1,7 +1,7 @@
 let raw = null;
 let activeSourceMeta = null;
 
-const DATA_ASSET_VERSION = "20260916-nbs-70city-august";
+const DATA_ASSET_VERSION = "20261019-nbs-70city-september";
 
 const SOURCE_CONFIGS = [
   {
