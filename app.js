@@ -346,7 +346,7 @@ const cityById = new Map();
 const cityValidRanges = new Map();
 const uiState = {
   showDrawdownAnalysis: false,
-  showChartTable: true,
+  showChartTable: !window.matchMedia("(max-width: 760px), (max-width: 1024px) and (max-height: 600px) and (pointer: coarse)").matches,
   hiddenCityNames: new Set(),
   zoomStartMonth: null,
   zoomEndMonth: null,
@@ -3691,6 +3691,7 @@ function makeOption(
       color: chartTheme.chartTextColor,
     },
     tooltip: {
+      confine: true,
       trigger: "axis",
       axisPointer: {
         type: "line",
@@ -3731,7 +3732,8 @@ function makeOption(
       },
     },
     legend: {
-      bottom: legendBottom,
+      type: compactMobile ? "scroll" : "plain",
+      bottom: compactMobile ? 8 : legendBottom,
       textStyle: {
         color: chartTheme.legendTextColor,
         fontSize: legendFontSize,
