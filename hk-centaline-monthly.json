@@ -1,10 +1,10 @@
 {
   "source": "Centaline Hong Kong CCL",
   "sourceUrl": "https://hk.centanet.com/CCI/zh-cn/index",
-  "extractedAt": "2026-09-15T09:49:34.293Z",
+  "extractedAt": "2026-10-20T04:51:14.930Z",
   "method": "Use official weekly CCL chartData from window.__NUXT__, take last available week of each month.",
   "startMonth": "2005-01",
-  "endMonth": "2026-08",
+  "endMonth": "2026-09",
   "monthlySeries": {
     "months": [
       "2005-01",
@@ -266,7 +266,8 @@
       "2026-05",
       "2026-06",
       "2026-07",
-      "2026-08"
+      "2026-08",
+      "2026-09"
     ],
     "values": [
       49.82,
@@ -528,11 +529,12 @@
       157.94,
       160.77,
       159.92,
-      162.02
+      162.02,
+      160.1
     ]
   },
   "valueRange": {
     "startMonth": "2005-01",
-    "endMonth": "2026-08"
+    "endMonth": "2026-09"
   }
 }
