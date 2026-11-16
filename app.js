@@ -1,7 +1,7 @@
 let raw = null;
 let activeSourceMeta = null;
 
-const DATA_ASSET_VERSION = "20261020-centaline-september";
+const DATA_ASSET_VERSION = "20261116-housing-october";
 
 const SOURCE_CONFIGS = [
   {
